@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\TblSalesWalkin;   // ✅ correct model
+use App\Models\TblSalesWalkin; 
+use App\Models\TblBackwashStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -93,11 +94,26 @@ class WalkinSalesController extends Controller
             'note'                 => ['nullable', 'string', 'max:255'],
         ]);
 
-        $data['sold_at']        = Carbon::now($tz); // PH time
+        $data['sold_at']        = Carbon::now($tz);
         $data['total_amount']   = $data['quantity'] * $data['price_per_container'];
         $data['payment_status'] = $data['payment_status'] ?? 'paid';
 
-        $sale = TblSalesWalkin::create($data);   // ✅ use your model
+        $sale = TblSalesWalkin::create($data);  
+
+        if ($sale->payment_status === 'paid') {
+            $status = TblBackwashStatus::first();
+
+            if (!$status) {
+                $status = TblBackwashStatus::create([
+                    'last_backwash_at'   => null,
+                    'gallons_since_last' => 0,
+                    'threshold_gallons'  => 200,
+                ]);
+            }
+
+            // add the gallons of this sale to the running total
+            $status->increment('gallons_since_last', $sale->quantity);
+        }
 
         if ($request->wantsJson()) {
             return response()->json(['ok' => true, 'id' => $sale->id]);
