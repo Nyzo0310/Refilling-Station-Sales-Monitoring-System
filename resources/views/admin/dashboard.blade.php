@@ -2,143 +2,42 @@
 
 @section('content')
     <style>
-        /* Mas friendly na layout para sa Recent Walk-in card */
-        .recent-walkin-header {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        .recent-summary-line {
-            margin-top: 4px;
-            font-size: 12px;
-            color: #64748b;
-        }
-        .recent-summary-line strong {
-            color: #0f172a;
-        }
+        /* Dashboard specific tweaks */
+        .metric-gradient-blue { background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); }
+        .metric-gradient-indigo { background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%); }
 
-        .recent-walkin-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
+        @keyframes pulse-soft {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
+        .pulse-needed { animation: pulse-soft 2s infinite ease-in-out; }
 
-        .recent-walkin-table thead {
-            background: #f1f5f9;
+        .card-icon-bg {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            width: 100px;
+            height: 100px;
+            opacity: 0.05;
+            pointer-events: none;
         }
+        .card-dark .card-icon-bg { opacity: 0.1; filter: invert(1); }
 
-        .recent-walkin-table th,
-        .recent-walkin-table td {
-            padding: 8px 10px;
-            vertical-align: middle;
-            text-align: left; /* default */
-        }
-
-        .recent-walkin-table th {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #475569;
-        }
-
-        .recent-walkin-table tbody tr:nth-child(even) {
-            background: #f9fbff;
-        }
-
-        /* === Alignment fixes === */
-        .recent-walkin-table th.col-qty,
-        .recent-walkin-table td.col-qty,
-        .recent-walkin-table th.col-total,
-        .recent-walkin-table td.col-total {
-            text-align: center;
-        }
-        .recent-walkin-table th.col-status,
-        .recent-walkin-table td.col-status {
-            text-align: center;
-        }
-
-        .recent-col-date {
-            white-space: nowrap;
-            font-weight: 600;
-            color: #0f172a;
-        }
-        .recent-col-customer {
-            font-weight: 600;
-            color: #0f172a;
-        }
-        .recent-col-customer small {
-            display: block;
-            font-weight: 400;
-            font-size: 11px;
-            color: #64748b;
-        }
-
-        .badge-status {
-            padding: 3px 9px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-        }
-        .badge-status.paid   { background: #dcfce7; color: #166534; }
-        .badge-status.unpaid { background: #fee2e2; color: #b91c1c; }
-
-        /* ========== Premium SweetAlert for backwash ========== */
-        .swal-backwash.swal2-popup {
-            border-radius: 20px !important;
-            padding: 22px 24px 20px !important;
-            background: radial-gradient(circle at top, #0b1120 0, #020617 55%, #020617 100%) !important;
-            box-shadow:
-                0 22px 55px rgba(15, 23, 42, 0.85),
-                0 0 0 1px rgba(37, 99, 235, 0.45);
-            color: #e5e7eb !important;
-        }
-        .swal-backwash .swal2-title {
-            font-size: 20px !important;
-            font-weight: 700 !important;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: #e5f3ff !important;
-        }
-        .swal-backwash .swal2-html-container {
-            margin-top: 6px !important;
-            font-size: 14px;
-            color: #cbd5f5 !important;
-        }
-        .swal-backwash .swal2-icon.swal2-success {
-            border-color: #22c55e !important;
-            color: #22c55e !important;
-        }
-        .swal-backwash .swal2-icon.swal2-warning {
-            border-color: #f97316 !important;
-            color: #fed7aa !important;
-        }
-        .swal-backwash .swal2-confirm {
-            border-radius: 999px !important;
-            background: linear-gradient(to right, #0ea5e9, #0369a1) !important;
-            padding: 8px 22px !important;
-            font-size: 14px !important;
-            font-weight: 600 !important;
-            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.75);
-        }
-        .swal-backwash .swal2-confirm:focus {
-            box-shadow:
-                0 0 0 3px rgba(15, 23, 42, 0.8),
-                0 0 0 5px rgba(56, 189, 248, 0.9) !important;
-        }
-        .swal2-container.swal2-center.swal-backwash-container {
-            background-color: rgba(15, 23, 42, 0.75) !important;
-        }
+        .recent-walkin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .recent-walkin-table th { background: #f8fafc; padding: 12px; font-size: 11px; color: #64748b; text-transform: uppercase; text-align: left; }
+        .recent-walkin-table td { padding: 12px; border-top: 1px solid #f1f5f9; }
     </style>
 
     {{-- Top bar --}}
     <header class="admin-topbar">
-        <div>
-            <div class="admin-topbar-title">Dashboard</div>
-            <div class="admin-topbar-sub">
-                Overview of today’s sales and operations.
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="mobile-toggle">☰</button>
+            <div>
+                <div class="admin-topbar-title">Dashboard</div>
+                <div class="admin-topbar-sub">
+                    Welcome back, Admin! Here is the overview of today’s sales and operations.
+                </div>
             </div>
         </div>
         <div class="admin-topbar-right">
@@ -151,45 +50,50 @@
         {{-- Top metrics row --}}
         <div class="grid-3">
             {{-- Today’s Sales --}}
-            <div class="card">
-                <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="card metric-gradient-blue" style="position: relative; overflow: hidden;">
+                <img src="{{ asset('icons/admin/walkin.png') }}" class="card-icon-bg" alt="">
+                <div style="display:flex;align-items:center;justify-content:space-between; position: relative; z-index: 1;">
                     <div>
                         <div class="card-label">TODAY'S SALES</div>
                         <div class="card-value-xl">
                             ₱ {{ number_format($todayRevenue ?? 0, 2) }}
                         </div>
                         <div class="card-subtext-muted">
-                            {{ $todayGallons ?? 0 }}
+                            <span style="color: #0369a1; font-weight: 700;">{{ $todayGallons ?? 0 }}</span>
                             gallon{{ ($todayGallons ?? 0) == 1 ? '' : 's' }} sold today
                         </div>
                     </div>
                     <span class="badge-live">
-                        <span style="font-size:10px;margin-right:4px;">●</span> Live
+                        <span style="font-size:10px;margin-right:4px;">●</span> LIVE
                     </span>
                 </div>
             </div>
 
             {{-- This Month --}}
-            <div class="card">
-                <div class="card-label">THIS MONTH (WALK-IN)</div>
-                <div class="card-value-xl">
-                    ₱ {{ number_format($monthRevenue ?? 0, 2) }}
-                </div>
+            <div class="card metric-gradient-indigo" style="position: relative; overflow: hidden;">
+                <img src="{{ asset('icons/admin/reports.png') }}" class="card-icon-bg" alt="">
+                <div style="position: relative; z-index: 1;">
+                    <div class="card-label">THIS MONTH SUMMARY</div>
+                    <div class="card-value-xl">
+                        ₱ {{ number_format($monthRevenue ?? 0, 2) }}
+                    </div>
 
-                <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
-                    <span class="badge-chip">
-                        Sales: ₱ {{ number_format($monthRevenue ?? 0, 2) }}
-                    </span>
-                    <span class="badge-chip">
-                        Expenses: ₱ {{ number_format($monthExpenses ?? 0, 2) }}
-                    </span>
-                    <span class="badge-chip badge-chip-dark">
-                        Profit: ₱ {{ number_format($monthProfit ?? 0, 2) }}
-                    </span>
-                </div>
+                    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+                        <span class="badge-chip">
+                            Sales: ₱ {{ number_format($monthRevenue ?? 0, 2) }}
+                        </span>
+                        <span class="badge-chip">
+                            Expenses: ₱ {{ number_format($monthExpenses ?? 0, 2) }}
+                        </span>
+                        <span class="badge-chip {{ ($monthProfit ?? 0) >= 0 ? 'badge-chip-dark' : '' }}" 
+                              style="{{ ($monthProfit ?? 0) < 0 ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;' : '' }}">
+                            Profit: ₱ {{ number_format($monthProfit ?? 0, 2) }}
+                        </span>
+                    </div>
 
-                <div class="card-subtext-muted" style="margin-top:6px;">
-                    Based on paid walk-in refills this month.
+                    <div class="card-subtext-muted" style="margin-top:8px;">
+                        Performance for <span style="font-weight: 600; color: #4338ca;">{{ now()->format('F Y') }}</span>
+                    </div>
                 </div>
             </div>
 
@@ -200,136 +104,116 @@
                 $canLogBackwash = $currentGallons >= $threshold;
             @endphp
 
-            <div class="card card-dark">
-                <div class="card-label">BACKWASH STATUS</div>
+            <div class="card card-dark {{ $canLogBackwash ? 'pulse-needed' : '' }}" style="position: relative; overflow: hidden;">
+                <img src="{{ asset('icons/admin/dashboard.png') }}" class="card-icon-bg" alt="" style="opacity: 0.1; filter: invert(1);">
+                <div style="position: relative; z-index: 1;">
+                    <div class="card-label">BACKWASH MONITOR</div>
 
-                <div class="card-value-lg">
-                    Gallons since last:
-                    <span style="color:var(--water-accent-soft);font-weight:700;">
-                        {{ (int) $currentGallons }}
-                    </span>
-                    / {{ $threshold }}
+                    <div class="card-value-lg" style="letter-spacing: -0.01em;">
+                        <span style="font-size: 14px; opacity: 0.8; font-weight: 500;">Progress:</span>
+                        <span style="color:var(--water-accent-soft);font-weight:800; font-size: 24px;">
+                            {{ (int) $currentGallons }}
+                        </span>
+                        <span style="opacity: 0.5;">/ {{ $threshold }} gal</span>
+                    </div>
+
+                    <div class="progress-track" style="margin-top:14px; height: 8px; background: rgba(255,255,255,0.1);">
+                        <div class="progress-fill"
+                             style="width: {{ $backwashPercent ?? 0 }}%; background: linear-gradient(to right, #7dd3fc, #22d3ee);"></div>
+                    </div>
+
+                    <div style="margin-top:12px; font-size:11px; color:#94a3b8; display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ $canLogBackwash ? '#ef4444' : '#22c55e' }};"></span>
+                        @if ($canLogBackwash)
+                            <span style="color: #fca5a5; font-weight: 600;">Action required: Maintenance due.</span>
+                        @else
+                            <span>System healthy. Next due at {{ $threshold }} gal.</span>
+                        @endif
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.backwash.store') }}" style="margin-top:18px;">
+                        @csrf
+                        @if ($canLogBackwash)
+                            <button type="submit"
+                                    class="badge-chip badge-chip-dark"
+                                    style="cursor:pointer; border: 1px solid #38bdf8; width: 100%; justify-content: center; padding: 10px; background: rgba(56, 189, 248, 0.1); color: #f9fbff;">
+                                LOG BACKWASH COMPLETION
+                            </button>
+                        @else
+                            <div style="font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+                                Last clean: {{ $lastBackwashAt ? $lastBackwashAt->format('M d, h:i A') : 'N/A' }}
+                            </div>
+                        @endif
+                    </form>
                 </div>
-
-                <div style="margin-top:6px;font-size:12px;color:#bfdbfe;">
-                    Last backwash:
-                    @if($lastBackwashAt)
-                        {{ $lastBackwashAt->format('M d, Y h:i A') }}
-                    @else
-                        —
-                    @endif
-                </div>
-
-                <div class="progress-track" style="margin-top:10px;">
-                    <div class="progress-fill"
-                         style="width: {{ $backwashPercent ?? 0 }}%;"></div>
-                </div>
-
-                <div style="margin-top:10px;font-size:12px;
-                    color: {{ $canLogBackwash ? '#fecaca' : '#bfdbfe' }};">
-                    @if ($canLogBackwash)
-                        Backwash needed now. Please clean the filters and log it below.
-                    @else
-                        About {{ max($threshold - (int) $currentGallons, 0) }}
-                        gallons left before backwash is due.
-                    @endif
-                </div>
-
-                <form method="POST" action="{{ route('admin.backwash.store') }}" style="margin-top:12px;">
-                    @csrf
-
-                    @if ($canLogBackwash)
-                        <button type="submit"
-                                class="badge-chip badge-chip-dark"
-                                style="cursor:pointer;border:none;">
-                            Log backwash now
-                        </button>
-                    @else
-                        <button type="button"
-                                disabled
-                                class="badge-chip"
-                                style="border:none;opacity:.6;cursor:not-allowed;">
-                            Log backwash (wait until {{ $threshold }} gal)
-                        </button>
-                    @endif
-                </form>
             </div>
         </div> {{-- CLOSE grid-3 --}}
 
-        {{-- Recent Walk-in Sales --}}
+        {{-- Overall Recent Sales --}}
         <div class="card" style="margin-top:22px;">
-            <div class="recent-walkin-header">
+            <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; margin-bottom:16px; gap:12px;">
                 <div>
-                    <div class="recent-card-title">Recent Walk-in Sales</div>
-                    <div class="recent-card-sub">
-                        Latest over-the-counter refills
-                    </div>
+                    <h3 style="margin:0; font-size:18px;">Overall Recent Sales</h3>
+                    <p style="margin:4px 0 0; font-size:13px; color:#64748b;">Latest transactions across all channels</p>
                 </div>
 
-                @if (isset($recentWalkins) && $recentWalkins->isNotEmpty())
+                @if (isset($overallSales) && $overallSales->isNotEmpty())
                     @php
-                        $recentCount   = $recentWalkins->count();
-                        $recentGallons = $recentWalkins->sum('quantity');
-                        $recentTotal   = $recentWalkins->sum('total_amount');
+                        $recentCount   = $overallSales->count();
+                        $recentGallons = $overallSales->sum('quantity');
+                        $recentTotal   = $overallSales->sum('total_amount');
                     @endphp
-                    <div class="recent-summary-line">
-                        <strong>{{ $recentCount }}</strong> refill{{ $recentCount > 1 ? 's' : '' }}
-                        • <strong>{{ $recentGallons }}</strong> gallon{{ $recentGallons > 1 ? 's' : '' }}
-                        • <strong>₱ {{ number_format($recentTotal, 2) }}</strong> total
+                    <div style="font-size:12px; color:#64748b; background:#f1f5f9; padding:6px 14px; border-radius:10px;">
+                        <span style="font-weight:700; color:#1e293b;">{{ $recentCount }}</span> orders • 
+                        <span style="font-weight:700; color:#1e293b;">{{ $recentGallons }}</span> gal • 
+                        <span style="font-weight:700; color:var(--water-main);">₱{{ number_format($recentTotal, 2) }}</span>
                     </div>
                 @endif
             </div>
 
-            @if (isset($recentWalkins) && $recentWalkins->isNotEmpty())
-                <table class="recent-walkin-table">
-                    <thead>
-                        <tr>
-                            <th style="width:28%;">Date &amp; Time</th>
-                            <th style="width:32%;">Customer &amp; Container</th>
-                            <th class="col-qty"    style="width:12%;">Qty (gal)</th>
-                            <th class="col-total"  style="width:16%;">Total</th>
-                            <th class="col-status" style="width:12%;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($recentWalkins as $sale)
-                            @php
-                                $label = match ($sale->customer_type) {
-                                    'neighbor'     => 'Neighbor',
-                                    'non_neighbor' => 'Non-neighbor',
-                                    'crew_ship'    => 'Ship crew',
-                                    default        => ucfirst($sale->customer_type),
-                                };
-                            @endphp
+            @if (isset($overallSales) && $overallSales->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="recent-walkin-table" style="min-width: 600px;">
+                        <thead>
                             <tr>
-                                <td class="recent-col-date">
-                                    {{ $sale->sold_at?->format('M d, Y h:i A') }}
-                                </td>
-                                <td class="recent-col-customer">
-                                    {{ $label }}
-                                    <small>
-                                        Container: {{ $sale->container_type ?? '—' }}
-                                    </small>
-                                </td>
-                                <td class="col-qty">
-                                    {{ $sale->quantity }}
-                                </td>
-                                <td class="col-total">
-                                    ₱ {{ number_format($sale->total_amount, 2) }}
-                                </td>
-                                <td class="col-status">
-                                    <span class="badge-status {{ $sale->payment_status === 'paid' ? 'paid' : 'unpaid' }}">
-                                        {{ ucfirst($sale->payment_status) }}
-                                    </span>
-                                </td>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Customer / Ship</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                                <th>Status</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($overallSales as $sale)
+                                <tr>
+                                    <td style="white-space:nowrap; font-weight:500;">{{ $sale->date?->format('M d, h:i A') }}</td>
+                                    <td>
+                                        <span class="badge-chip" style="background: {{ $sale->type === 'Walk-in' ? '#e0f2fe' : '#eef2ff' }}; color: {{ $sale->type === 'Walk-in' ? '#0369a1' : '#4338ca' }};">
+                                            {{ $sale->type }}
+                                        </span>
+                                    </td>
+                                    <td style="font-weight:600;">
+                                        {{ $sale->type === 'Walk-in' ? ($sale->customer_type === 'neighbor' ? 'Neighbor' : 'Non-neighbor') : $sale->ship_name }}
+                                        <div style="font-size:11px; font-weight:400; color:#64748b;">
+                                            {{ $sale->type === 'Walk-in' ? ($sale->container_type ?: 'Standard') : ($sale->crew_name ?: 'Ship Crew') }}
+                                        </div>
+                                    </td>
+                                    <td style="font-weight:700;">{{ $sale->quantity }}</td>
+                                    <td style="font-weight:700; color:var(--water-deep);">₱{{ number_format($sale->total_amount, 2) }}</td>
+                                    <td>
+                                        <span class="badge-status {{ $sale->payment_status }}">
+                                            {{ ucfirst($sale->payment_status) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @else
                 <div class="recent-card-text">
-                    No walk-in sales recorded yet. Once you start adding walk-in transactions,
-                    they will appear here with the date, customer, gallons, amount, and status.
+                    No sales recorded yet. Once you start adding transactions, they will appear here.
                 </div>
             @endif
         </div>

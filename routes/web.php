@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\WalkinSalesController;
+use App\Http\Controllers\Admin\ShipDeliveryController;
 use App\Http\Controllers\Admin\BackwashController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\ReportController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard');
@@ -13,13 +16,39 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard');
 
-    // Walk-in sales (only index + store)
-    Route::get('/walkin-sales', [WalkinSalesController::class, 'index'])
-        ->name('walkin.index');
 
-    Route::post('/walkin-sales', [WalkinSalesController::class, 'store'])
-        ->name('walkin.store');
-
+    
+    // 🔽 NEW: log backwash
     Route::post('/backwash-log', [BackwashController::class, 'store'])
         ->name('backwash.store');
+
+    // Walk-in sales
+    Route::get('/walkin-sales', [WalkinSalesController::class, 'index'])
+        ->name('walkin.index');
+    Route::post('/walkin-sales', [WalkinSalesController::class, 'store'])
+        ->name('walkin.store');
+    Route::patch('/walkin-sales/{sale}', [WalkinSalesController::class, 'update'])
+        ->name('walkin.update');
+    Route::delete('/walkin-sales/{sale}', [WalkinSalesController::class, 'destroy'])
+        ->name('walkin.destroy');
+
+    // 🚢 Ship Deliveries
+    Route::get('/ship-deliveries', [ShipDeliveryController::class, 'index'])
+        ->name('ship-deliveries.index');
+    Route::post('/ship-deliveries', [ShipDeliveryController::class, 'store'])
+        ->name('ship-deliveries.store');
+    Route::patch('/ship-deliveries/{delivery}', [ShipDeliveryController::class, 'update'])
+        ->name('ship-deliveries.update');
+    Route::delete('/ship-deliveries/{delivery}', [ShipDeliveryController::class, 'destroy'])
+        ->name('ship-deliveries.destroy');
+
+    // 💰 Expenses
+    Route::get('/expenses', [ExpenseController::class, 'index'])
+        ->name('expenses.index');
+    Route::post('/expenses', [ExpenseController::class, 'store'])
+        ->name('expenses.store');
+
+    // 📊 Reports
+    Route::get('/reports', [ReportController::class, 'index'])
+        ->name('reports.index');
 });

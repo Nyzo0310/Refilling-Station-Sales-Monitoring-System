@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use App\Models\TblSalesWalkin;
+use App\Models\TblShipDelivery;
+use App\Models\TblExpense;
 use App\Models\TblBackwashStatus;
 use App\Models\TblBackwashLog;
 
@@ -15,25 +17,55 @@ class DashboardController extends Controller
         $today      = Carbon::today();
         $monthStart = Carbon::now()->startOfMonth();
 
-        // ===== WALK-IN METRICS =====
-        $todayRevenue = TblSalesWalkin::whereDate('sold_at', $today)
-            ->where('payment_status', 'paid')
+        // ===== COMBINED METRICS (WALK-IN + SHIP) =====
+        
+        // Today
+        $todayWalkinRev = TblSalesWalkin::whereDate('sold_at', $today)
             ->sum('total_amount');
+        $todayShipRev = TblShipDelivery::whereDate('delivered_at', $today)
+            ->sum('total_amount');
+        $todayRevenue = $todayWalkinRev + $todayShipRev;
 
-        $todayGallons = TblSalesWalkin::whereDate('sold_at', $today)
-            ->where('payment_status', 'paid')
+        $todayWalkinGal = TblSalesWalkin::whereDate('sold_at', $today)
             ->sum('quantity');
+        $todayShipGal = TblShipDelivery::whereDate('delivered_at', $today)
+            ->sum('quantity');
+        $todayGallons = $todayWalkinGal + $todayShipGal;
 
-        $monthRevenue = TblSalesWalkin::where('sold_at', '>=', $monthStart)
-            ->where('payment_status', 'paid')
+        // Month
+        $monthWalkinRev = TblSalesWalkin::where('sold_at', '>=', $monthStart)
             ->sum('total_amount');
+        $monthShipRev = TblShipDelivery::where('delivered_at', '>=', $monthStart)
+            ->sum('total_amount');
+        $monthRevenue = $monthWalkinRev + $monthShipRev;
 
-        $monthExpenses = 0; // later: real expenses table
+        // Expenses
+        $monthExpenses = TblExpense::where('date', '>=', $monthStart)
+            ->sum('amount');
+            
         $monthProfit   = $monthRevenue - $monthExpenses;
 
         $recentWalkins = TblSalesWalkin::orderByDesc('sold_at')
-            ->limit(5)
-            ->get();
+            ->limit(10)
+            ->get()
+            ->map(function($sale) {
+                $sale->type = 'Walk-in';
+                $sale->date = $sale->sold_at;
+                return $sale;
+            });
+
+        $recentShips = TblShipDelivery::orderByDesc('delivered_at')
+            ->limit(10)
+            ->get()
+            ->map(function($sale) {
+                $sale->type = 'Ship';
+                $sale->date = $sale->delivered_at;
+                return $sale;
+            });
+
+        $overallSales = $recentWalkins->concat($recentShips)
+            ->sortByDesc('date')
+            ->take(10);
 
         // ===== BACKWASH STATUS (SINGLE ROW) =====
         $backwashStatus = TblBackwashStatus::first();
@@ -63,7 +95,7 @@ class DashboardController extends Controller
             'monthRevenue',
             'monthExpenses',
             'monthProfit',
-            'recentWalkins',
+            'overallSales',
             'backwashStatus',
             'gallonsSinceLast',
             'thresholdGallons',
