@@ -62,7 +62,7 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA') 
                     ? (file_exists(base_path(env('MYSQL_ATTR_SSL_CA'))) ? base_path(env('MYSQL_ATTR_SSL_CA')) : env('MYSQL_ATTR_SSL_CA')) 
                     : null,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('DB_SSL_VERIFY', true),
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => filter_var(env('DB_SSL_VERIFY', true), FILTER_VALIDATE_BOOLEAN),
             ]) : [],
         ],
 
