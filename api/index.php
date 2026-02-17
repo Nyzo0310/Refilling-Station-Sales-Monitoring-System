@@ -47,12 +47,10 @@ try {
     require __DIR__ . '/../vendor/autoload.php';
     $app = require __DIR__ . '/../bootstrap/app.php';
 
-    // IMPORTANT: Set Facade root manually to prevent "Facade root not set" error in entry point
-    \Illuminate\Support\Facades\Facade::setFacadeApplication($app);
-
-    // Force HTTPS on Vercel
+    // Force HTTPS on Vercel using $_SERVER (prevents "Target class [config] does not exist" and "Facade root not set")
     if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-        \Illuminate\Support\Facades\URL::forceScheme('https');
+        $_SERVER['HTTPS'] = 'on';
+        $_SERVER['SERVER_PORT'] = 443;
     }
 
     $request = Illuminate\Http\Request::capture();
