@@ -29,7 +29,7 @@ try {
         throw new \Exception("Entry point not found: " . __DIR__ . '/../public/index.php');
     }
     
-    if (empty(env('APP_KEY')) && empty($_ENV['APP_KEY'])) {
+    if (empty(getenv('APP_KEY')) && empty($_ENV['APP_KEY'])) {
         // We can't use env() yet if app isn't booted, but let's check getenv
         if (empty(getenv('APP_KEY'))) {
             throw new \Exception("APP_KEY is missing! Please add it to Vercel Environment Variables.");
