@@ -8,11 +8,22 @@ if (!is_dir($storagePath)) {
 
 // Redirect storage paths to /tmp
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
-putenv('SESSION_DRIVER=cookie'); // Vercel is serverless, use cookies for sessions
-putenv('LOG_CHANNEL=stderr');    // Send errors to Vercel logs
+putenv('SESSION_DRIVER=cookie'); 
+putenv('LOG_CHANNEL=stderr');
+putenv('APP_DEBUG=true');
+putenv('APP_ENV=production'); // Keep production but force debug
 
 // Create necessary directories
 @mkdir('/tmp/storage/framework/views', 0755, true);
 @mkdir('/tmp/storage/framework/sessions', 0755, true);
+@mkdir('/tmp/storage/bootstrap/cache', 0755, true);
 
-require __DIR__ . '/../public/index.php';
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    error_log('CRITICAL ERROR: ' . $e->getMessage());
+    error_log('STACK TRACE: ' . $e->getTraceAsString());
+    echo "<h1>Critical Error</h1>";
+    echo "<pre>" . $e->getMessage() . "</pre>";
+    echo "<pre>" . $e->getTraceAsString() . "</pre>";
+}
