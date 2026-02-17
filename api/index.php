@@ -1,28 +1,29 @@
 <?php
 
-// Set up storage for read-only filesystem on Vercel
-$storagePath = '/tmp/storage/bootstrap/cache';
-if (!is_dir($storagePath)) {
-    mkdir($storagePath, 0755, true);
+// Ensure storage sub-directories exist in /tmp for Vercel
+$storageDirectories = [
+    '/tmp/storage/bootstrap/cache',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/framework/views',
+    '/tmp/storage/framework/cache/data',
+    '/tmp/storage/app/public',
+    '/tmp/storage/logs',
+];
+
+foreach ($storageDirectories as $directory) {
+    if (!is_dir($directory)) {
+        @mkdir($directory, 0755, true);
+    }
 }
 
-// Redirect storage paths to /tmp
-putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
-putenv('SESSION_DRIVER=cookie'); 
-putenv('LOG_CHANNEL=stderr');
+// Redirect environment variables
+putenv('APP_ENV=production');
 putenv('APP_DEBUG=true');
-putenv('APP_ENV=production'); // Keep production but force debug
-
-// Create necessary directories
-@mkdir('/tmp/storage/framework/views', 0755, true);
-@mkdir('/tmp/storage/framework/sessions', 0755, true);
-@mkdir('/tmp/storage/bootstrap/cache', 0755, true);
+putenv('LOG_CHANNEL=stderr');
 
 try {
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
-    error_log('CRITICAL ERROR: ' . $e->getMessage());
-    error_log('STACK TRACE: ' . $e->getTraceAsString());
     echo "<h1>Critical Error</h1>";
     echo "<pre>" . $e->getMessage() . "</pre>";
     echo "<pre>" . $e->getTraceAsString() . "</pre>";

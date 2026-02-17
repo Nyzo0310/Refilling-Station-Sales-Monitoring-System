@@ -16,3 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+
+// Force storage path to /tmp on Vercel
+if (env('VERCEL') || env('NOW_REGION')) {
+    $app->useStoragePath('/tmp/storage');
+}
+
+return $app;
