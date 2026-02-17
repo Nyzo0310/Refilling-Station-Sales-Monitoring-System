@@ -17,9 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-// Force storage path to /tmp on Vercel
-if (env('VERCEL') || env('NOW_REGION')) {
-    $app->useStoragePath('/tmp/storage');
-}
+// Set storage path (for Vercel compatibility)
+$app->useStoragePath(env('APP_STORAGE', base_path('storage')));
 
 return $app;
