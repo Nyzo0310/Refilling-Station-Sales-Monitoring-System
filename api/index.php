@@ -24,4 +24,23 @@ putenv('APP_DEBUG=true');
 putenv('LOG_CHANNEL=stderr');
 putenv('SESSION_DRIVER=cookie');
 
-require __DIR__ . '/../public/index.php';
+try {
+    if (!file_exists(__DIR__ . '/../public/index.php')) {
+        throw new \Exception("Entry point not found: " . __DIR__ . '/../public/index.php');
+    }
+    
+    if (empty(env('APP_KEY')) && empty($_ENV['APP_KEY'])) {
+        // We can't use env() yet if app isn't booted, but let's check getenv
+        if (empty(getenv('APP_KEY'))) {
+            throw new \Exception("APP_KEY is missing! Please add it to Vercel Environment Variables.");
+        }
+    }
+
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    echo "<h1>Critical Startup Error</h1>";
+    echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
+    echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
+    echo "<h3>Stack Trace:</h3>";
+    echo "<pre>" . $e->getTraceAsString() . "</pre>";
+}
