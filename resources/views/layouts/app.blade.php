@@ -417,10 +417,20 @@
                 <img src="{{ asset('icons/admin/reports.png') }}" alt="Reports" class="nav-icon">
                 <span class="label">Reports</span>
             </a>
+
+            <div style="margin-top: auto; padding-top: 20px;">
+                <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                    @csrf
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="admin-nav-link" style="color: #fca5a5;">
+                        <span class="nav-icon" style="filter: none; opacity: 1;">🚪</span>
+                        <span class="label">Sign Out</span>
+                    </a>
+                </form>
+            </div>
         </nav>
 
         <div class="admin-sidebar-footer">
-            Logged in as <span>Admin</span>
+            Logged in as <span>{{ Auth::user()->name }}</span>
         </div>
     </aside>
 

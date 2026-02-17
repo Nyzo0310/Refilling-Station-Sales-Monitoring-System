@@ -7,12 +7,19 @@ use App\Http\Controllers\Admin\ShipDeliveryController;
 use App\Http\Controllers\Admin\BackwashController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Auth\LoginController;
+
+// 🛡️ Authentication Routes
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard');
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
+// 🔒 Protected Admin Routes
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard');
 
