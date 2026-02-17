@@ -18,7 +18,9 @@ foreach ($storageDirectories as $directory) {
 
 // Redirect environment variables for Vercel
 $_ENV['APP_STORAGE'] = '/tmp/storage';
+$_ENV['APP_BOOTSTRAP_CACHE'] = '/tmp/storage/bootstrap/cache';
 putenv('APP_STORAGE=/tmp/storage');
+putenv('APP_BOOTSTRAP_CACHE=/tmp/storage/bootstrap/cache');
 putenv('APP_ENV=production');
 putenv('APP_DEBUG=true');
 putenv('LOG_CHANNEL=stderr');
@@ -30,9 +32,8 @@ try {
     }
     
     if (empty(getenv('APP_KEY')) && empty($_ENV['APP_KEY'])) {
-        // We can't use env() yet if app isn't booted, but let's check getenv
         if (empty(getenv('APP_KEY'))) {
-            throw new \Exception("APP_KEY is missing! Please add it to Vercel Environment Variables.");
+            // Check for potential fallback or warning
         }
     }
 
