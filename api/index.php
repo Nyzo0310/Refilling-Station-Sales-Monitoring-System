@@ -17,13 +17,15 @@ foreach ($storageDirectories as $directory) {
 }
 
 // Redirect environment variables for Vercel
-// Laravel 11/12 specific cache redirections
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 $_ENV['APP_BOOTSTRAP_CACHE'] = '/tmp/storage/bootstrap/cache';
 $_ENV['APP_CONFIG_CACHE'] = '/tmp/storage/bootstrap/cache/config.php';
 $_ENV['APP_SERVICES_CACHE'] = '/tmp/storage/bootstrap/cache/services.php';
 $_ENV['APP_PACKAGES_CACHE'] = '/tmp/storage/bootstrap/cache/packages.php';
 $_ENV['APP_ROUTES_CACHE'] = '/tmp/storage/bootstrap/cache/routes.php';
+
+// Force session driver to cookie for Vercel (database sessions need SSL, which might fail early)
+$_ENV['SESSION_DRIVER'] = 'cookie';
 
 putenv('APP_STORAGE=/tmp/storage');
 putenv('APP_BOOTSTRAP_CACHE=/tmp/storage/bootstrap/cache');
@@ -36,6 +38,14 @@ putenv('APP_ENV=production');
 putenv('APP_DEBUG=true');
 putenv('LOG_CHANNEL=stderr');
 putenv('SESSION_DRIVER=cookie');
+
+// Force SSL for TiDB if not set
+if (empty(getenv('MYSQL_ATTR_SSL_CA')) && empty($_ENV['MYSQL_ATTR_SSL_CA'])) {
+    // If we suspect TiDB (usually via host), we can force it
+    // For now, let's just set the default CA we have in Git
+    $_ENV['MYSQL_ATTR_SSL_CA'] = 'isrgrootx1.pem';
+    putenv('MYSQL_ATTR_SSL_CA=isrgrootx1.pem');
+}
 
 try {
     // Autoload check
