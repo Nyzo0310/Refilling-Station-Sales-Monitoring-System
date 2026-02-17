@@ -27,18 +27,23 @@ putenv('LOG_CHANNEL=stderr');
 putenv('SESSION_DRIVER=cookie');
 
 try {
-    // Early existence checks
-    if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-        throw new \Exception("Autoloader not found at " . __DIR__ . '/../vendor/autoload.php');
+    // Autoload check
+    $autoloader = __DIR__ . '/../vendor/autoload.php';
+    if (!file_exists($autoloader)) {
+        throw new \Exception("Autoloader not found at: " . $autoloader);
     }
+    require $autoloader;
 
-    // Load Autoloader
-    require __DIR__ . '/../vendor/autoload.php';
+    // Check for critical Laravel file
+    $coreFile = __DIR__ . '/../vendor/laravel/framework/src/Illuminate/Filesystem/FilesystemServiceProvider.php';
+    if (!file_exists($coreFile)) {
+        throw new \Exception("CRITICAL: Laravel Core File missing! (FilesystemServiceProvider). The deployment might be truncated due to size.");
+    }
 
     // Bootstrap Laravel
     $app = require __DIR__ . '/../bootstrap/app.php';
 
-    // Manual Handle to catch the REAL error and prevent loops
+    // Manual Handle
     $request = Illuminate\Http\Request::capture();
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
@@ -47,16 +52,12 @@ try {
         $response->send();
         $kernel->terminate($request, $response);
     } catch (\Throwable $e) {
-        // If we get here, it means Laravel's internal handler failed or was bypassed
         if (ob_get_length()) ob_clean();
-        
         echo "<h1>CRITICAL APPLICATION ERROR</h1>";
         echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
         echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
         echo "<h3>Stack Trace:</h3>";
         echo "<pre>" . $e->getTraceAsString() . "</pre>";
-        
-        error_log("FATAL: " . $e->getMessage());
     }
 
 } catch (\Throwable $e) {
@@ -65,6 +66,4 @@ try {
     echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
     echo "<h3>Stack Trace:</h3>";
     echo "<pre>" . $e->getTraceAsString() . "</pre>";
-    
-    error_log("STARTUP FATAL: " . $e->getMessage());
 }

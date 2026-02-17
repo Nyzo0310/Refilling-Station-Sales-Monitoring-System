@@ -17,7 +17,11 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-// Ensure View service is bound to prevent looping errors on Vercel
+// Ensure core services are registered on Vercel (prevents [view] and [files] missing errors)
+if (!$app->bound('files')) {
+    $app->register(\Illuminate\Filesystem\FilesystemServiceProvider::class);
+}
+
 if (!$app->bound('view')) {
     $app->register(\Illuminate\View\ViewServiceProvider::class);
 }
