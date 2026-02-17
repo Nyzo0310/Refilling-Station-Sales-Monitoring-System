@@ -47,17 +47,17 @@ try {
     require __DIR__ . '/../vendor/autoload.php';
     $app = require __DIR__ . '/../bootstrap/app.php';
 
+    // Force HTTPS on Vercel without using Facades (prevents "Facade root not set" error)
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        $_SERVER['HTTPS'] = 'on';
+    }
+
     $request = Illuminate\Http\Request::capture();
     
     // Handle Trusted Proxies for Vercel
     $request->setTrustedProxies([$request->getClientIp()], \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO | \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT | \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST);
 
     $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
-    // Force HTTPS on Vercel (Safe to use facades now)
-    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-        \Illuminate\Support\Facades\URL::forceScheme('https');
-    }
 
     $response = $kernel->handle($request);
     $response->send();
