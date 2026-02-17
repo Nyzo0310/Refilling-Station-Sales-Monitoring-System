@@ -17,10 +17,21 @@ foreach ($storageDirectories as $directory) {
 }
 
 // Redirect environment variables for Vercel
+// Laravel 11/12 specific cache redirections
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 $_ENV['APP_BOOTSTRAP_CACHE'] = '/tmp/storage/bootstrap/cache';
+$_ENV['APP_CONFIG_CACHE'] = '/tmp/storage/bootstrap/cache/config.php';
+$_ENV['APP_SERVICES_CACHE'] = '/tmp/storage/bootstrap/cache/services.php';
+$_ENV['APP_PACKAGES_CACHE'] = '/tmp/storage/bootstrap/cache/packages.php';
+$_ENV['APP_ROUTES_CACHE'] = '/tmp/storage/bootstrap/cache/routes.php';
+
 putenv('APP_STORAGE=/tmp/storage');
 putenv('APP_BOOTSTRAP_CACHE=/tmp/storage/bootstrap/cache');
+putenv('APP_CONFIG_CACHE=/tmp/storage/bootstrap/cache/config.php');
+putenv('APP_SERVICES_CACHE=/tmp/storage/bootstrap/cache/services.php');
+putenv('APP_PACKAGES_CACHE=/tmp/storage/bootstrap/cache/packages.php');
+putenv('APP_ROUTES_CACHE=/tmp/storage/bootstrap/cache/routes.php');
+
 putenv('APP_ENV=production');
 putenv('APP_DEBUG=true');
 putenv('LOG_CHANNEL=stderr');
@@ -33,12 +44,6 @@ try {
         throw new \Exception("Autoloader not found at: " . $autoloader);
     }
     require $autoloader;
-
-    // Check for critical Laravel file
-    $coreFile = __DIR__ . '/../vendor/laravel/framework/src/Illuminate/Filesystem/FilesystemServiceProvider.php';
-    if (!file_exists($coreFile)) {
-        throw new \Exception("CRITICAL: Laravel Core File missing! (FilesystemServiceProvider). The deployment might be truncated due to size.");
-    }
 
     // Bootstrap Laravel
     $app = require __DIR__ . '/../bootstrap/app.php';
