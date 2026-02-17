@@ -1,6 +1,6 @@
 <?php
 
-// Ensure storage sub-directories exist in /tmp for Vercel
+// 1. Ensure storage sub-directories exist in /tmp for Vercel
 $storageDirectories = [
     '/tmp/storage/bootstrap/cache',
     '/tmp/storage/framework/sessions',
@@ -16,15 +16,13 @@ foreach ($storageDirectories as $directory) {
     }
 }
 
-// Redirect environment variables for Vercel
+// 2. Setup Vercel Environment Variables
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 $_ENV['APP_BOOTSTRAP_CACHE'] = '/tmp/storage/bootstrap/cache';
 $_ENV['APP_CONFIG_CACHE'] = '/tmp/storage/bootstrap/cache/config.php';
 $_ENV['APP_SERVICES_CACHE'] = '/tmp/storage/bootstrap/cache/services.php';
 $_ENV['APP_PACKAGES_CACHE'] = '/tmp/storage/bootstrap/cache/packages.php';
 $_ENV['APP_ROUTES_CACHE'] = '/tmp/storage/bootstrap/cache/routes.php';
-
-// Force session driver to cookie for Vercel
 $_ENV['SESSION_DRIVER'] = 'cookie';
 
 putenv('APP_STORAGE=/tmp/storage');
@@ -33,13 +31,9 @@ putenv('APP_CONFIG_CACHE=/tmp/storage/bootstrap/cache/config.php');
 putenv('APP_SERVICES_CACHE=/tmp/storage/bootstrap/cache/services.php');
 putenv('APP_PACKAGES_CACHE=/tmp/storage/bootstrap/cache/packages.php');
 putenv('APP_ROUTES_CACHE=/tmp/storage/bootstrap/cache/routes.php');
-
-putenv('APP_ENV=production');
-putenv('APP_DEBUG=true');
-putenv('LOG_CHANNEL=stderr');
 putenv('SESSION_DRIVER=cookie');
 
-// Strict TiDB SSL Forcing
+// 3. Strict TiDB SSL Forcing
 $caPath = __DIR__ . '/../isrgrootx1.pem';
 if (empty(getenv('MYSQL_ATTR_SSL_CA'))) {
     $_ENV['MYSQL_ATTR_SSL_CA'] = 'isrgrootx1.pem';
@@ -50,6 +44,45 @@ if (empty(getenv('DB_SSL_VERIFY'))) {
     putenv('DB_SSL_VERIFY=true');
 }
 
+// 4. PRE-BOOT CONNECTION DIAGNOSTIC (The "Life Saver")
+if (getenv('DB_HOST')) {
+    try {
+        $dsn = "mysql:host=" . getenv('DB_HOST') . ";port=" . getenv('DB_PORT') . ";dbname=" . getenv('DB_DATABASE');
+        $pdo = new PDO($dsn, getenv('DB_USERNAME'), getenv('DB_PASSWORD'), [
+            PDO::MYSQL_ATTR_SSL_CA => $caPath,
+            PDO::ATTR_TIMEOUT => 5,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+        // If we get here, connection works! Proceed to Laravel.
+    } catch (\PDOException $e) {
+        // CONNECTION FAILED - Capture the detailed error before Laravel tries
+        if (ob_get_length()) ob_clean();
+        header('HTTP/1.1 500 Internal Server Error');
+        echo "<div style='font-family:sans-serif; padding: 20px; border: 2px solid red; background: #fff5f5;'>";
+        echo "<h1 style='color:#c53030;'>❌ Database Connection Denied</h1>";
+        echo "<p><b>The TiDB Server said:</b> <span style='color:red'>" . htmlspecialchars($e->getMessage()) . "</span></p>";
+        echo "<hr>";
+        echo "<h3>What the Server Sees:</h3>";
+        echo "<ul>";
+        echo "<li><b>TiDB Host:</b> " . htmlspecialchars(getenv('DB_HOST')) . " (Port " . getenv('DB_PORT') . ")</li>";
+        echo "<li><b>Username:</b> " . htmlspecialchars(getenv('DB_USERNAME')) . "</li>";
+        echo "<li><b>Database:</b> " . htmlspecialchars(getenv('DB_DATABASE')) . "</li>";
+        echo "<li><b>SSL File Found?</b> " . (file_exists($caPath) ? "<span style='color:green'>YES</span>" : "<span style='color:red'>NO! (Vercel missed it)</span>") . "</li>";
+        echo "<li><b>SSL Path:</b> " . htmlspecialchars($caPath) . "</li>";
+        echo "<li><b>Password Length:</b> " . strlen(getenv('DB_PASSWORD')) . " chars</li>";
+        echo "</ul>";
+        echo "<h3>Next Steps:</h3>";
+        echo "<ol>";
+        echo "<li>If it says <b>Access denied</b>, your <b>Password</b> or <b>IP Whitelist</b> in TiDB is still blocking it.</li>";
+        echo "<li>If it says <b>Unknown database</b>, change your Vercel DB_DATABASE to 'db_refilling'.</li>";
+        echo "<li>If SSL is <b>NO</b>, I need to check the build process.</li>";
+        echo "</ol>";
+        echo "</div>";
+        exit;
+    }
+}
+
+// 5. Boot Laravel
 try {
     require __DIR__ . '/../vendor/autoload.php';
     $app = require __DIR__ . '/../bootstrap/app.php';
@@ -62,40 +95,8 @@ try {
     $kernel->terminate($request, $response);
 
 } catch (\Throwable $e) {
-    // Check if it's a DB error to provide specific guidance
-    $msg = $e->getMessage();
-    
-    if (str_contains($msg, 'Access denied') || str_contains($msg, 'Unknown database') || str_contains($msg, 'insecure transport') || str_contains($msg, 'Connection')) {
-        if (ob_get_length()) ob_clean();
-        echo "<h1>CRITICAL DATABASE DIAGNOSTIC</h1>";
-        echo "<p><b>Error:</b> " . htmlspecialchars($msg) . "</p>";
-        echo "<hr>";
-        echo "<h3>Environment Check:</h3>";
-        echo "<ul>";
-        echo "<li><b>DB_HOST:</b> " . htmlspecialchars(getenv('DB_HOST')) . "</li>";
-        echo "<li><b>DB_PORT:</b> " . htmlspecialchars(getenv('DB_PORT')) . "</li>";
-        echo "<li><b>DB_DATABASE:</b> " . htmlspecialchars(getenv('DB_DATABASE')) . "</li>";
-        echo "<li><b>DB_USERNAME:</b> " . htmlspecialchars(getenv('DB_USERNAME')) . "</li>";
-        echo "<li><b>Specified CA Cert Path:</b> " . htmlspecialchars(getenv('MYSQL_ATTR_SSL_CA')) . "</li>";
-        echo "<li><b>CA Cert Physical Path:</b> " . htmlspecialchars($caPath) . "</li>";
-        echo "<li><b>Cert File Exists locally?</b> " . (file_exists($caPath) ? '<b style="color:green">YES</b>' : '<b style="color:red">NO (MISSING!)</b>') . "</li>";
-        echo "<li><b>Password Provided?</b> " . (getenv('DB_PASSWORD') ? 'YES (' . strlen(getenv('DB_PASSWORD')) . ' chars)' : 'NO') . "</li>";
-        echo "</ul>";
-        
-        echo "<h3>Manual Connection Test:</h3>";
-        try {
-            $dsn = "mysql:host=" . getenv('DB_HOST') . ";port=" . getenv('DB_PORT');
-            $pdo = new PDO($dsn, getenv('DB_USERNAME'), getenv('DB_PASSWORD'), [
-                PDO::MYSQL_ATTR_SSL_CA => $caPath,
-                PDO::ATTR_TIMEOUT => 5
-            ]);
-            echo '<p style="color:green"><b>SUCCESS! Raw PHP was able to connect to TiDB Host.</b></p>';
-        } catch (\Exception $ex) {
-            echo '<p style="color:red"><b>FAILURE! Raw PHP could not connect:</b> ' . htmlspecialchars($ex->getMessage()) . '</p>';
-        }
-
-        echo "<p><i>Tip: If Cert exists but connection fails, double check '0.0.0.0/0' in TiDB Networking.</i></p>";
-    } else {
-        throw $e; 
-    }
+    if (ob_get_length()) ob_clean();
+    echo "<h1>CRITICAL ERROR</h1>";
+    echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+    exit;
 }
