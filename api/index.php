@@ -46,9 +46,15 @@ if (empty(getenv('DB_SSL_VERIFY'))) {
 
 // 4. PRE-BOOT CONNECTION DIAGNOSTIC (The "Life Saver")
 if (getenv('DB_HOST')) {
+    $dbHost = trim(getenv('DB_HOST'));
+    $dbPort = trim(getenv('DB_PORT'));
+    $dbUser = trim(getenv('DB_USERNAME'));
+    $dbPass = trim(getenv('DB_PASSWORD'));
+    $dbName = trim(getenv('DB_DATABASE'));
+
     try {
-        $dsn = "mysql:host=" . getenv('DB_HOST') . ";port=" . getenv('DB_PORT') . ";dbname=" . getenv('DB_DATABASE');
-        $pdo = new PDO($dsn, getenv('DB_USERNAME'), getenv('DB_PASSWORD'), [
+        $dsn = "mysql:host=$dbHost;port=$dbPort;dbname=$dbName";
+        $pdo = new PDO($dsn, $dbUser, $dbPass, [
             PDO::MYSQL_ATTR_SSL_CA => $caPath,
             PDO::ATTR_TIMEOUT => 5,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
@@ -64,12 +70,12 @@ if (getenv('DB_HOST')) {
         echo "<hr>";
         echo "<h3>What the Server Sees:</h3>";
         echo "<ul>";
-        echo "<li><b>TiDB Host:</b> " . htmlspecialchars(getenv('DB_HOST')) . " (Port " . getenv('DB_PORT') . ")</li>";
-        echo "<li><b>Username:</b> " . htmlspecialchars(getenv('DB_USERNAME')) . "</li>";
-        echo "<li><b>Database:</b> " . htmlspecialchars(getenv('DB_DATABASE')) . "</li>";
+        echo "<li><b>TiDB Host:</b> " . htmlspecialchars($dbHost) . " (Port $dbPort)</li>";
+        echo "<li><b>Username:</b> " . htmlspecialchars($dbUser) . "</li>";
+        echo "<li><b>Database:</b> " . htmlspecialchars($dbName) . "</li>";
         echo "<li><b>SSL File Found?</b> " . (file_exists($caPath) ? "<span style='color:green'>YES</span>" : "<span style='color:red'>NO! (Vercel missed it)</span>") . "</li>";
         echo "<li><b>SSL Path:</b> " . htmlspecialchars($caPath) . "</li>";
-        echo "<li><b>Password Length:</b> " . strlen(getenv('DB_PASSWORD')) . " chars</li>";
+        echo "<li><b>Password Length:</b> " . strlen($dbPass) . " chars</li>";
         echo "</ul>";
         echo "<h3>Next Steps:</h3>";
         echo "<ol>";
