@@ -61,26 +61,11 @@ try {
     $kernel->terminate($request, $response);
 
 } catch (\Throwable $e) {
-    // Check if it's a DB error to provide specific guidance
-    $msg = $e->getMessage();
-    
-    if (str_contains($msg, 'Access denied') || str_contains($msg, 'Unknown database') || str_contains($msg, 'insecure transport')) {
-        if (ob_get_length()) ob_clean();
-        echo "<h1>Database Connection Diagnostic</h1>";
-        echo "<p><b>Error:</b> " . htmlspecialchars($msg) . "</p>";
-        echo "<hr>";
-        echo "<h3>Environment Check (Masked):</h3>";
-        echo "<ul>";
-        echo "<li><b>DB_HOST:</b> " . htmlspecialchars(getenv('DB_HOST')) . "</li>";
-        echo "<li><b>DB_PORT:</b> " . htmlspecialchars(getenv('DB_PORT')) . "</li>";
-        echo "<li><b>DB_DATABASE:</b> " . htmlspecialchars(getenv('DB_DATABASE')) . "</li>";
-        echo "<li><b>DB_USERNAME:</b> " . htmlspecialchars(getenv('DB_USERNAME')) . "</li>";
-        echo "<li><b>SSL_CA:</b> " . htmlspecialchars(getenv('MYSQL_ATTR_SSL_CA')) . " (Exists? " . (file_exists(__DIR__.'/../'.getenv('MYSQL_ATTR_SSL_CA')) ? 'YES' : 'NO') . ")</li>";
-        echo "<li><b>Password Provided?</b> " . (getenv('DB_PASSWORD') ? 'YES (' . strlen(getenv('DB_PASSWORD')) . ' chars)' : 'NO') . "</li>";
-        echo "</ul>";
-        echo "<p><i>Tip: If the port is not 4000, TiDB will fail. If the database is 'test' but you see something else, update Vercel.</i></p>";
-    } else {
-        // Fallback to standard error display if it's not a DB error we recognize
-        throw $e; 
+    if (ob_get_length()) ob_clean();
+    echo "<h1>APPLICATION ERROR</h1>";
+    echo "<p><b>Message:</b> " . htmlspecialchars($e->getMessage()) . "</p>";
+    if (str_contains($e->getMessage(), 'Access denied')) {
+        echo "<p><b>Solution:</b> In TiDB Cloud console, go to 'Connect' -> 'IP Whitelist' and allow '0.0.0.0/0' so Vercel can connect.</p>";
     }
+    echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
 }
