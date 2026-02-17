@@ -40,6 +40,7 @@ putenv('LOG_CHANNEL=stderr');
 putenv('SESSION_DRIVER=cookie');
 
 // Strict TiDB SSL Forcing
+$caPath = __DIR__ . '/../isrgrootx1.pem';
 if (empty(getenv('MYSQL_ATTR_SSL_CA'))) {
     $_ENV['MYSQL_ATTR_SSL_CA'] = 'isrgrootx1.pem';
     putenv('MYSQL_ATTR_SSL_CA=isrgrootx1.pem');
@@ -61,11 +62,40 @@ try {
     $kernel->terminate($request, $response);
 
 } catch (\Throwable $e) {
-    if (ob_get_length()) ob_clean();
-    echo "<h1>APPLICATION ERROR</h1>";
-    echo "<p><b>Message:</b> " . htmlspecialchars($e->getMessage()) . "</p>";
-    if (str_contains($e->getMessage(), 'Access denied')) {
-        echo "<p><b>Solution:</b> In TiDB Cloud console, go to 'Connect' -> 'IP Whitelist' and allow '0.0.0.0/0' so Vercel can connect.</p>";
+    // Check if it's a DB error to provide specific guidance
+    $msg = $e->getMessage();
+    
+    if (str_contains($msg, 'Access denied') || str_contains($msg, 'Unknown database') || str_contains($msg, 'insecure transport') || str_contains($msg, 'Connection')) {
+        if (ob_get_length()) ob_clean();
+        echo "<h1>CRITICAL DATABASE DIAGNOSTIC</h1>";
+        echo "<p><b>Error:</b> " . htmlspecialchars($msg) . "</p>";
+        echo "<hr>";
+        echo "<h3>Environment Check:</h3>";
+        echo "<ul>";
+        echo "<li><b>DB_HOST:</b> " . htmlspecialchars(getenv('DB_HOST')) . "</li>";
+        echo "<li><b>DB_PORT:</b> " . htmlspecialchars(getenv('DB_PORT')) . "</li>";
+        echo "<li><b>DB_DATABASE:</b> " . htmlspecialchars(getenv('DB_DATABASE')) . "</li>";
+        echo "<li><b>DB_USERNAME:</b> " . htmlspecialchars(getenv('DB_USERNAME')) . "</li>";
+        echo "<li><b>Specified CA Cert Path:</b> " . htmlspecialchars(getenv('MYSQL_ATTR_SSL_CA')) . "</li>";
+        echo "<li><b>CA Cert Physical Path:</b> " . htmlspecialchars($caPath) . "</li>";
+        echo "<li><b>Cert File Exists locally?</b> " . (file_exists($caPath) ? '<b style="color:green">YES</b>' : '<b style="color:red">NO (MISSING!)</b>') . "</li>";
+        echo "<li><b>Password Provided?</b> " . (getenv('DB_PASSWORD') ? 'YES (' . strlen(getenv('DB_PASSWORD')) . ' chars)' : 'NO') . "</li>";
+        echo "</ul>";
+        
+        echo "<h3>Manual Connection Test:</h3>";
+        try {
+            $dsn = "mysql:host=" . getenv('DB_HOST') . ";port=" . getenv('DB_PORT');
+            $pdo = new PDO($dsn, getenv('DB_USERNAME'), getenv('DB_PASSWORD'), [
+                PDO::MYSQL_ATTR_SSL_CA => $caPath,
+                PDO::ATTR_TIMEOUT => 5
+            ]);
+            echo '<p style="color:green"><b>SUCCESS! Raw PHP was able to connect to TiDB Host.</b></p>';
+        } catch (\Exception $ex) {
+            echo '<p style="color:red"><b>FAILURE! Raw PHP could not connect:</b> ' . htmlspecialchars($ex->getMessage()) . '</p>';
+        }
+
+        echo "<p><i>Tip: If Cert exists but connection fails, double check '0.0.0.0/0' in TiDB Networking.</i></p>";
+    } else {
+        throw $e; 
     }
-    echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
 }
