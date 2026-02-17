@@ -17,7 +17,14 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
+// Ensure View service is bound to prevent looping errors on Vercel
+if (!$app->bound('view')) {
+    $app->register(\Illuminate\View\ViewServiceProvider::class);
+}
+
 // Set storage path (for Vercel compatibility)
-$app->useStoragePath($_ENV['APP_STORAGE'] ?? base_path('storage'));
+if (isset($_ENV['APP_STORAGE'])) {
+    $app->useStoragePath($_ENV['APP_STORAGE']);
+}
 
 return $app;

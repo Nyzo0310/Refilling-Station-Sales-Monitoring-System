@@ -27,21 +27,44 @@ putenv('LOG_CHANNEL=stderr');
 putenv('SESSION_DRIVER=cookie');
 
 try {
-    if (!file_exists(__DIR__ . '/../public/index.php')) {
-        throw new \Exception("Entry point not found: " . __DIR__ . '/../public/index.php');
-    }
-    
-    if (empty(getenv('APP_KEY')) && empty($_ENV['APP_KEY'])) {
-        if (empty(getenv('APP_KEY'))) {
-            // Check for potential fallback or warning
-        }
+    // Early existence checks
+    if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
+        throw new \Exception("Autoloader not found at " . __DIR__ . '/../vendor/autoload.php');
     }
 
-    require __DIR__ . '/../public/index.php';
+    // Load Autoloader
+    require __DIR__ . '/../vendor/autoload.php';
+
+    // Bootstrap Laravel
+    $app = require __DIR__ . '/../bootstrap/app.php';
+
+    // Manual Handle to catch the REAL error and prevent loops
+    $request = Illuminate\Http\Request::capture();
+    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+
+    try {
+        $response = $kernel->handle($request);
+        $response->send();
+        $kernel->terminate($request, $response);
+    } catch (\Throwable $e) {
+        // If we get here, it means Laravel's internal handler failed or was bypassed
+        if (ob_get_length()) ob_clean();
+        
+        echo "<h1>CRITICAL APPLICATION ERROR</h1>";
+        echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
+        echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
+        echo "<h3>Stack Trace:</h3>";
+        echo "<pre>" . $e->getTraceAsString() . "</pre>";
+        
+        error_log("FATAL: " . $e->getMessage());
+    }
+
 } catch (\Throwable $e) {
-    echo "<h1>Critical Startup Error</h1>";
+    echo "<h1>CRITICAL STARTUP ERROR</h1>";
     echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
     echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
     echo "<h3>Stack Trace:</h3>";
     echo "<pre>" . $e->getTraceAsString() . "</pre>";
+    
+    error_log("STARTUP FATAL: " . $e->getMessage());
 }
