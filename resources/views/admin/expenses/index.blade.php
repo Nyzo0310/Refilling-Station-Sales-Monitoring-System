@@ -189,31 +189,32 @@
 
             btn.addEventListener('click', function() {
                 Swal.fire({
-                    title: 'RECORD EXPENSE',
+                    title: 'RECORD NEW EXPENSE',
                     customClass: {
-                        container: 'swal-expenses',
-                        popup: 'swal2-popup'
+                        popup: 'swal-water',
+                        confirmButton: 'swal-confirm',
+                        cancelButton: 'swal-cancel'
                     },
                     html: `
                         <div style="text-align: left;">
-                            <label class="swal-label">Expense Type</label>
-                            <select id="expense_type" class="swal2-select">
-                                <option value="machine maintenance">Machine Maintenance</option>
-                                <option value="electricity">Electricity</option>
-                                <option value="water source">Water Source</option>
-                                <option value="salary">Salary</option>
-                                <option value="gas">Gas</option>
-                                <option value="misc">Miscellaneous</option>
+                            <label class="swal-label">What kind of expense?</label>
+                            <select id="expense_type" class="swal2-select swal-select">
+                                <option value="machine maintenance">⚙️ Machine Maintenance</option>
+                                <option value="electricity">⚡ Electricity Bill</option>
+                                <option value="water source">💧 Water Source / Supply</option>
+                                <option value="salary">👥 Staff Salary</option>
+                                <option value="gas">⛽ Fuel / Gas</option>
+                                <option value="misc">📦 Other / Miscellaneous</option>
                             </select>
 
-                            <label class="swal-label">Amount (₱)</label>
+                            <label class="swal-label">How much (₱)?</label>
                             <input type="number" id="amount" class="swal2-input" placeholder="0.00" step="0.01">
 
-                            <label class="swal-label">Date</label>
+                            <label class="swal-label">When did this occur?</label>
                             <input type="date" id="expense_date" class="swal2-input" value="{{ date('Y-m-d') }}">
 
-                            <label class="swal-label">Remarks (Optional)</label>
-                            <textarea id="remarks" class="swal2-textarea" placeholder="Describe the expense..."></textarea>
+                            <label class="swal-label">Short Description (Optional)</label>
+                            <textarea id="remarks" class="swal2-textarea swal2-input" placeholder="e.g. replaced filter, monthly electric bill..."></textarea>
                         </div>
                     `,
                     showCancelButton: true,

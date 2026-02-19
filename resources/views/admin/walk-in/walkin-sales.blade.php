@@ -240,47 +240,47 @@
                         <div class="swal-form">
                             <div class="swal-row">
                                 <div class="swal-field">
-                                    <div class="swal-label">Customer type</div>
+                                    <div class="swal-label">Customer Category</div>
                                     <select id="swal_customer_type" class="swal2-input swal-select">
-                                        <option value="neighbor">Neighbor</option>
-                                        <option value="non_neighbor">Non-neighbor</option>
+                                        <option value="neighbor">🏠 Neighbor (Local Area)</option>
+                                        <option value="non_neighbor">🚶 Non-neighbor (Walk-in)</option>
                                     </select>
                                 </div>
                                 <div class="swal-field">
-                                    <div class="swal-label">Container type</div>
-                                    <input id="swal_container_type" class="swal2-input" placeholder="e.g. 5 gal blue">
+                                    <div class="swal-label">Container Description</div>
+                                    <input id="swal_container_type" class="swal2-input" placeholder="e.g. 5 Gallon Slim Blue">
                                 </div>
                             </div>
                             <div class="swal-row">
                                 <div class="swal-field">
-                                    <div class="swal-label">Quantity</div>
+                                    <div class="swal-label">How many gallons/containers?</div>
                                     <input id="swal_qty" type="number" min="1" value="1" class="swal2-input">
                                 </div>
                                 <div class="swal-field">
-                                    <div class="swal-label">Price / container (₱)</div>
-                                    <input id="swal_price" type="number" step="0.01" min="0" class="swal2-input">
+                                    <div class="swal-label">Price per item (₱)</div>
+                                    <input id="swal_price" type="number" step="0.01" min="0" class="swal2-input" placeholder="0.00">
                                 </div>
                             </div>
                             <div class="swal-row">
                                 <div class="swal-field full">
                                     <div class="swal-label">Payment Status</div>
                                     <select id="swal_payment_status" class="swal2-input swal-select">
-                                        <option value="paid">Paid</option>
-                                        <option value="unpaid">Unpaid</option>
+                                        <option value="paid">✅ Fully Paid Now</option>
+                                        <option value="unpaid">⏳ Pay Later / Credit</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="swal-row">
                                 <div class="swal-field full">
-                                    <div class="swal-label">Note (optional)</div>
-                                    <input id="swal_note" class="swal2-input" placeholder="short internal note">
+                                    <div class="swal-label">Internal Notes (Optional)</div>
+                                    <input id="swal_note" class="swal2-input" placeholder="e.g. borrowed container, special request">
                                 </div>
                             </div>
                             <div class="swal-total-wrap">
-                                <div class="swal-total-label">Total</div>
+                                <div class="swal-total-label">Grand Total</div>
                                 <div class="swal-total-bar">
                                     <div id="swal_total_main" class="swal-total-main">₱ 0.00</div>
-                                    <div id="swal_total_sub" class="swal-total-sub">0 × ₱ 0.00 per container</div>
+                                    <div id="swal_total_sub" class="swal-total-sub">0 × ₱ 0.00 each</div>
                                 </div>
                             </div>
                         </div>
@@ -305,7 +305,7 @@
                             const p = parseFloat(priceEl.value || '0');
                             const t = q * p;
                             totalMain.textContent = '₱ ' + t.toFixed(2);
-                            totalSub.textContent = q + ' × ₱ ' + p.toFixed(2) + ' per container';
+                            totalSub.textContent = q + ' × ₱ ' + p.toFixed(2) + ' each';
                         }
                         qtyEl.addEventListener('input', updateTotal);
                         priceEl.addEventListener('input', updateTotal);
@@ -363,29 +363,29 @@
                         <div class="swal-form">
                             <div class="swal-row">
                                 <div class="swal-field full">
-                                    <div class="swal-label">Customer type</div>
+                                    <div class="swal-label">Customer Category</div>
                                     <select id="edit_customer_type" class="swal2-input swal-select">
-                                        <option value="neighbor" ${type === 'neighbor' ? 'selected' : ''}>Neighbor</option>
-                                        <option value="non_neighbor" ${type === 'non_neighbor' ? 'selected' : ''}>Non-neighbor</option>
-                                        <option value="crew_ship" ${type === 'crew_ship' ? 'selected' : ''}>Ship crew</option>
+                                        <option value="neighbor" ${type === 'neighbor' ? 'selected' : ''}>🏠 Neighbor (Local Area)</option>
+                                        <option value="non_neighbor" ${type === 'non_neighbor' ? 'selected' : ''}>🚶 Non-neighbor (Walk-in)</option>
+                                        <option value="crew_ship" ${type === 'crew_ship' ? 'selected' : ''}>🚢 Ship Crew</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="swal-row">
                                 <div class="swal-field full">
-                                    <div class="swal-label">Container type</div>
-                                    <input id="edit_container_type" class="swal2-input" value="${container || ''}" placeholder="e.g. 5 gal blue">
+                                    <div class="swal-label">Container Description</div>
+                                    <input id="edit_container_type" class="swal2-input" value="${container || ''}" placeholder="e.g. 5 Gallon Slim Blue">
                                 </div>
                             </div>
 
                             <div class="swal-row">
                                 <div class="swal-field">
-                                    <div class="swal-label">Quantity</div>
+                                    <div class="swal-label">How many?</div>
                                     <input id="edit_qty" type="number" min="1" value="${qty}" class="swal2-input">
                                 </div>
                                 <div class="swal-field">
-                                    <div class="swal-label">Price / container (₱)</div>
+                                    <div class="swal-label">Price per item (₱)</div>
                                     <input id="edit_price" type="number" step="0.01" min="0" value="${price}" class="swal2-input">
                                 </div>
                             </div>
@@ -394,24 +394,24 @@
                                 <div class="swal-field full">
                                     <div class="swal-label">Payment Status</div>
                                     <select id="edit_payment_status" class="swal2-input swal-select">
-                                        <option value="paid" ${status === 'paid' ? 'selected' : ''}>Paid</option>
-                                        <option value="unpaid" ${status === 'unpaid' ? 'selected' : ''}>Unpaid</option>
+                                        <option value="paid" ${status === 'paid' ? 'selected' : ''}>✅ Fully Paid Now</option>
+                                        <option value="unpaid" ${status === 'unpaid' ? 'selected' : ''}>⏳ Pay Later / Credit</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="swal-row">
                                 <div class="swal-field full">
-                                    <div class="swal-label">Note (optional)</div>
+                                    <div class="swal-label">Internal Notes (Optional)</div>
                                     <input id="edit_note" class="swal2-input" value="${note || ''}" placeholder="short internal note">
                                 </div>
                             </div>
 
                             <div class="swal-total-wrap">
-                                <div class="swal-total-label">Updated Total</div>
+                                <div class="swal-total-label">Updated Grand Total</div>
                                 <div id="edit_total_bar" class="swal-total-bar">
                                     <div id="edit_total_main" class="swal-total-main">₱ 0.00</div>
-                                    <div id="edit_total_sub" class="swal-total-sub">0 × ₱ 0.00 per container</div>
+                                    <div id="edit_total_sub" class="swal-total-sub">0 × ₱ 0.00 each</div>
                                 </div>
                             </div>
                         </div>
@@ -436,7 +436,7 @@
                             const p = parseFloat(priceEl.value || '0');
                             const t = q * p;
                             totalMain.textContent = '₱ ' + t.toFixed(2);
-                            totalSub.textContent = q + ' × ₱ ' + p.toFixed(2) + ' per container';
+                            totalSub.textContent = q + ' × ₱ ' + p.toFixed(2) + ' each';
                         }
 
                         qtyEl.addEventListener('input', updateTotal);

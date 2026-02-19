@@ -395,6 +395,11 @@
             height: 50px !important;
         }
 
+        .swal-water .swal-select option {
+            background-color: #0b1120 !important;
+            color: white !important;
+        }
+
         .swal-water .swal-confirm {
             background: var(--water-accent) !important;
             border-radius: 14px !important;
