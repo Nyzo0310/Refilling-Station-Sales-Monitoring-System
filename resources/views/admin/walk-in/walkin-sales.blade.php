@@ -200,6 +200,7 @@
                                                 data-qty="{{ $sale->quantity }}"
                                                 data-price="{{ $sale->price_per_container }}"
                                                 data-status="{{ $sale->payment_status }}"
+                                                data-received="{{ $sale->money_received }}"
                                                 data-note="{{ $sale->note }}"
                                                 style="color:var(--water-accent); padding:4px;" title="Edit">
                                             ✏️
@@ -266,12 +267,17 @@
                                 </div>
                             </div>
                             <div class="swal-row">
-                                <div class="swal-field full">
+                                <div class="swal-field">
                                     <div class="swal-label">Payment Status</div>
                                     <select id="swal_payment_status" class="swal2-input swal-select">
-                                        <option value="paid">✅ Fully Paid Now</option>
-                                        <option value="unpaid">⏳ Pay Later / Credit</option>
+                                        <option value="paid">✅ Fully Paid</option>
+                                        <option value="unpaid">⏳ Unpaid / Credit</option>
+                                        <option value="partial">🌗 Partial Payment</option>
                                     </select>
+                                </div>
+                                <div class="swal-field">
+                                    <div class="swal-label">Amount Received (₱)</div>
+                                    <input id="swal_received" type="number" step="0.01" min="0" class="swal2-input" placeholder="0.00">
                                 </div>
                             </div>
                             <div class="swal-row">
@@ -299,20 +305,38 @@
                         cancelButton: 'swal-cancel'
                     },
                     didOpen: () => {
-                        const qtyEl = document.getElementById('swal_qty');
-                        const priceEl = document.getElementById('swal_price');
-                        const totalMain = document.getElementById('swal_total_main');
-                        const totalSub = document.getElementById('swal_total_sub');
+                        const qtyEl      = document.getElementById('swal_qty');
+                        const priceEl    = document.getElementById('swal_price');
+                        const receivedEl = document.getElementById('swal_received');
+                        const statusEl   = document.getElementById('swal_payment_status');
+                        const totalMain  = document.getElementById('swal_total_main');
+                        const totalSub   = document.getElementById('swal_total_sub');
 
                         function updateTotal() {
                             const q = parseFloat(qtyEl.value || '0');
                             const p = parseFloat(priceEl.value || '0');
+                            const r = parseFloat(receivedEl.value || '0');
                             const t = q * p;
+                            const change = Math.max(0, r - t);
+
                             totalMain.textContent = '₱ ' + t.toFixed(2);
-                            totalSub.textContent = q + ' × ₱ ' + p.toFixed(2) + ' each';
+                            let subText = q + ' × ₱ ' + p.toFixed(2) + ' each';
+                            if (r > t) {
+                                subText += ' | Change: ₱ ' + change.toFixed(2);
+                            }
+                            totalSub.textContent = subText;
+
+                            if (r === 0) {
+                                statusEl.value = 'unpaid';
+                            } else if (r > 0 && r < t) {
+                                statusEl.value = 'partial';
+                            } else if (r >= t && t > 0) {
+                                statusEl.value = 'paid';
+                            }
                         }
                         qtyEl.addEventListener('input', updateTotal);
                         priceEl.addEventListener('input', updateTotal);
+                        receivedEl.addEventListener('input', updateTotal);
                     },
                     preConfirm: () => {
                         return {
@@ -321,6 +345,7 @@
                             quantity: parseInt(document.getElementById('swal_qty').value || '0', 10),
                             price_per_container: parseFloat(document.getElementById('swal_price').value || '0'),
                             payment_status: document.getElementById('swal_payment_status').value,
+                            money_received: document.getElementById('swal_received').value || 0,
                             note: document.getElementById('swal_note').value
                         };
                     }
@@ -395,12 +420,17 @@
                             </div>
 
                             <div class="swal-row">
-                                <div class="swal-field full">
+                                <div class="swal-field">
                                     <div class="swal-label">Payment Status</div>
                                     <select id="edit_payment_status" class="swal2-input swal-select">
-                                        <option value="paid" ${status === 'paid' ? 'selected' : ''}>✅ Fully Paid Now</option>
-                                        <option value="unpaid" ${status === 'unpaid' ? 'selected' : ''}>⏳ Pay Later / Credit</option>
+                                        <option value="paid" ${status === 'paid' ? 'selected' : ''}>✅ Fully Paid</option>
+                                        <option value="unpaid" ${status === 'unpaid' ? 'selected' : ''}>⏳ Unpaid / Credit</option>
+                                        <option value="partial" ${status === 'partial' ? 'selected' : ''}>🌗 Partial Payment</option>
                                     </select>
+                                </div>
+                                <div class="swal-field">
+                                    <div class="swal-label">Amount Received (₱)</div>
+                                    <input id="edit_received" type="number" step="0.01" min="0" value="${this.dataset.received || 0}" class="swal2-input" placeholder="0.00">
                                 </div>
                             </div>
 
@@ -430,21 +460,46 @@
                         cancelButton: 'swal-cancel'
                     },
                     didOpen: () => {
-                        const qtyEl = document.getElementById('edit_qty');
-                        const priceEl = document.getElementById('edit_price');
-                        const totalMain = document.getElementById('edit_total_main');
-                        const totalSub = document.getElementById('edit_total_sub');
+                        const qtyEl      = document.getElementById('edit_qty');
+                        const priceEl    = document.getElementById('edit_price');
+                        const receivedEl = document.getElementById('edit_received');
+                        const statusEl   = document.getElementById('edit_payment_status');
+                        const totalMain  = document.getElementById('edit_total_main');
+                        const totalSub   = document.getElementById('edit_total_sub');
 
                         function updateTotal() {
                             const q = parseFloat(qtyEl.value || '0');
                             const p = parseFloat(priceEl.value || '0');
+                            const r = parseFloat(receivedEl.value || '0');
                             const t = q * p;
+                            const change = Math.max(0, r - t);
+
                             totalMain.textContent = '₱ ' + t.toFixed(2);
-                            totalSub.textContent = q + ' × ₱ ' + p.toFixed(2) + ' each';
+                            let subText = q + ' × ₱ ' + p.toFixed(2) + ' each';
+                            if (r > t) {
+                                subText += ' | Change: ₱ ' + change.toFixed(2);
+                            }
+                            totalSub.textContent = subText;
+                            
+                            // Only auto-update status if it's not already set to 'paid' by choice?
+                            // Actually user said: "if its partial it will mark the status as partial"
+                            // "if the client pais everything my admin just edit the specific data and change the status to complete"
+                            // So we should auto-toggle if user changes 'Amount Received'.
                         }
 
                         qtyEl.addEventListener('input', updateTotal);
                         priceEl.addEventListener('input', updateTotal);
+                        receivedEl.addEventListener('input', () => {
+                            updateTotal();
+                            const q = parseFloat(qtyEl.value || '0');
+                            const p = parseFloat(priceEl.value || '0');
+                            const r = parseFloat(receivedEl.value || '0');
+                            const t = q * p;
+                            
+                            if (r === 0) statusEl.value = 'unpaid';
+                            else if (r > 0 && r < t) statusEl.value = 'partial';
+                            else if (r >= t && t > 0) statusEl.value = 'paid';
+                        });
                         updateTotal();
                     },
                     preConfirm: () => {
@@ -454,6 +509,7 @@
                             quantity: parseInt(document.getElementById('edit_qty').value || '0', 10),
                             price_per_container: parseFloat(document.getElementById('edit_price').value || '0'),
                             payment_status: document.getElementById('edit_payment_status').value,
+                            money_received: document.getElementById('edit_received').value || 0,
                             note: document.getElementById('edit_note').value
                         };
                     }

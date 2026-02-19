@@ -353,9 +353,18 @@
                             totalSub.textContent = subText;
                         }
 
-                        qtyEl.addEventListener('input', updateTotal);
-                        priceEl.addEventListener('input', updateTotal);
-                        receivedEl.addEventListener('input', updateTotal);
+                        receivedEl.addEventListener('input', () => {
+                            updateTotal();
+                            const q = parseFloat(qtyEl.value || '0');
+                            const p = parseFloat(priceEl.value || '0');
+                            const r = parseFloat(receivedEl.value || '0');
+                            const t = q * p;
+                            const statusEl = document.getElementById('swal_status');
+
+                            if (r === 0) statusEl.value = 'unpaid';
+                            else if (r > 0 && r < t) statusEl.value = 'partial';
+                            else if (r >= t && t > 0) statusEl.value = 'paid';
+                        });
                         updateTotal();
                     },
                     preConfirm: () => {
@@ -542,9 +551,18 @@
                                 totalSub.textContent = `${q} × ₱ ${p.toFixed(2)} | Change: ₱ ${change.toFixed(2)}`;
                             }
 
-                            qtyEl.addEventListener('input', updateTotal);
-                            priceEl.addEventListener('input', updateTotal);
-                            receivedEl.addEventListener('input', updateTotal);
+                            receivedEl.addEventListener('input', () => {
+                                updateTotal();
+                                const q = parseFloat(qtyEl.value || '0');
+                                const p = parseFloat(priceEl.value || '0');
+                                const r = parseFloat(receivedEl.value || '0');
+                                const t = q * p;
+                                const statusEl = document.getElementById('edit_status');
+
+                                if (r === 0) statusEl.value = 'unpaid';
+                                else if (r > 0 && r < t) statusEl.value = 'partial';
+                                else if (r >= t && t > 0) statusEl.value = 'paid';
+                            });
                             updateTotal();
                         },
                         preConfirm: () => {

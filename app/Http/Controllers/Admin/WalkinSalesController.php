@@ -84,7 +84,8 @@ class WalkinSalesController extends Controller
             'container_type'      => ['nullable', 'string', 'max:255'],
             'quantity'            => ['required', 'integer', 'min:1'],
             'price_per_container' => ['required', 'numeric', 'min:0.01'],
-            'payment_status'      => ['nullable', 'in:paid,unpaid'],
+            'payment_status'      => ['nullable', 'in:paid,unpaid,partial'],
+            'money_received'      => ['nullable', 'numeric', 'min:0'],
             'note'                => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -118,7 +119,8 @@ class WalkinSalesController extends Controller
             'container_type'      => ['nullable', 'string', 'max:255'],
             'quantity'            => ['required', 'integer', 'min:1'],
             'price_per_container' => ['required', 'numeric', 'min:0.01'],
-            'payment_status'      => ['required', 'in:paid,unpaid'],
+            'payment_status'      => ['required', 'in:paid,unpaid,partial'],
+            'money_received'      => ['nullable', 'numeric', 'min:0'],
             'note'                => ['nullable', 'string', 'max:255'],
         ]);
 

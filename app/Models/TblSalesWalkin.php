@@ -19,6 +19,7 @@ class TblSalesWalkin extends Model
         'total_amount',
         'customer_type',
         'payment_status',
+        'money_received',
         'note',
     ];
 
@@ -27,5 +28,6 @@ class TblSalesWalkin extends Model
         'quantity'            => 'integer',
         'price_per_container' => 'decimal:2',
         'total_amount'        => 'decimal:2',
+        'money_received'      => 'decimal:2',
     ];
 }
