@@ -383,28 +383,80 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
         }
 
-        .swal-water .swal2-title { color: white !important; font-size: 28px !important; font-family: 'Outfit', sans-serif !important; }
-        .swal-water .swal2-html-container { color: #94a3b8 !important; }
+        .swal-water .swal2-title { color: white !important; font-size: 28px !important; font-family: 'Outfit', sans-serif !important; margin-bottom: 30px !important; }
+        .swal-water .swal2-html-container { color: #94a3b8 !important; margin: 0 !important; }
 
-        .swal-water .swal-label { font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 8px; }
+        .swal-form { display: flex; flex-direction: column; gap: 20px; text-align: left; }
+        .swal-row { display: flex; gap: 16px; }
+        .swal-field { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .swal-field.full { flex: none; width: 100%; }
+        .swal-label { font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em; }
+
+        .swal2-input, .swal-select {
+            width: 100% !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+
         .swal-water .swal2-input, .swal-water .swal-select {
             background: rgba(255,255,255,0.05) !important;
             border: 1px solid rgba(255,255,255,0.1) !important;
             color: white !important;
             border-radius: 14px !important;
             height: 50px !important;
+            font-size: 15px !important;
+            padding: 0 16px !important;
         }
+
+        .swal-water textarea.swal2-input { height: auto !important; padding: 12px 16px !important; min-height: 80px; }
 
         .swal-water .swal-select option {
             background-color: #0b1120 !important;
             color: white !important;
         }
 
+        .swal-total-wrap {
+            margin-top: 10px;
+            padding: 20px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .swal-total-label { font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; }
+        .swal-total-bar { text-align: right; }
+        .swal-total-main { font-size: 24px; font-weight: 800; color: white; font-family: 'Outfit', sans-serif; }
+        .swal-total-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
         .swal-water .swal-confirm {
             background: var(--water-accent) !important;
             border-radius: 14px !important;
             padding: 14px 40px !important;
             font-weight: 700 !important;
+            font-size: 16px !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+        }
+
+        .swal-water .swal2-actions { width: 100%; gap: 12px; margin-top: 20px !important; }
+        .swal-water .swal-cancel {
+            background: rgba(255,255,255,0.05) !important;
+            color: #94a3b8 !important;
+            border-radius: 14px !important;
+            font-weight: 600 !important;
+            padding: 14px 20px !important;
+        }
+
+        @media (max-width: 640px) {
+            .swal-water.swal2-popup { padding: 30px 20px !important; border-radius: 24px !important; }
+            .swal-water .swal2-title { font-size: 20px !important; margin-bottom: 20px !important; }
+            .swal-row { flex-direction: column; gap: 16px; }
+            .swal-form { gap: 16px; }
+            .swal-total-wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .swal-total-bar { text-align: left; }
+            .swal-field .swal2-input, .swal-field .swal-select { height: 46px !important; font-size: 14px !important; }
         }
 
         .progress-track {

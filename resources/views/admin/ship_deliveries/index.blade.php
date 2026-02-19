@@ -257,34 +257,34 @@
                         <div class="swal-form">
                             <div class="swal-row">
                                 <div class="swal-field">
-                                    <div class="swal-label">Ship name</div>
+                                    <div class="swal-label">What is the Ship's Name?</div>
                                     <input id="swal_ship_name" class="swal2-input" placeholder="e.g. MV Masagana">
                                 </div>
                                 <div class="swal-field">
-                                    <div class="swal-label">Crew name</div>
-                                    <input id="swal_crew_name" class="swal2-input" placeholder="optional">
+                                    <div class="swal-label">Who is the Crew? (Optional)</div>
+                                    <input id="swal_crew_name" class="swal2-input" placeholder="Name of recipient">
                                 </div>
                             </div>
 
                             <div class="swal-row">
                                 <div class="swal-field">
-                                    <div class="swal-label">Contact number</div>
-                                    <input id="swal_contact" class="swal2-input" placeholder="optional">
+                                    <div class="swal-label">Contact Number</div>
+                                    <input id="swal_contact" class="swal2-input" placeholder="Optional ph/radio">
                                 </div>
                                 <div class="swal-field">
-                                    <div class="swal-label">Container type</div>
-                                    <input id="swal_container_type" class="swal2-input" placeholder="e.g. 200L drum">
+                                    <div class="swal-label">Container Description</div>
+                                    <input id="swal_container_type" class="swal2-input" placeholder="e.g. 200L Drum">
                                 </div>
                             </div>
 
                             <div class="swal-row">
                                 <div class="swal-field">
-                                    <div class="swal-label">Quantity (Gallons)</div>
+                                    <div class="swal-label">How many gallons?</div>
                                     <input id="swal_qty" type="number" min="1" class="swal2-input" value="1">
                                 </div>
                                 <div class="swal-field">
-                                    <div class="swal-label">Price / item (₱)</div>
-                                    <input id="swal_price" type="number" min="0" step="0.01" class="swal2-input">
+                                    <div class="swal-label">Price per gallon (₱)</div>
+                                    <input id="swal_price" type="number" min="0" step="0.01" class="swal2-input" placeholder="0.00">
                                 </div>
                             </div>
 
@@ -292,31 +292,29 @@
                                 <div class="swal-field">
                                     <div class="swal-label">Payment status</div>
                                     <select id="swal_status" class="swal2-input swal-select">
-                                        <option value="paid">Paid</option>
-                                        <option value="unpaid">Unpaid</option>
-                                        <option value="partial">Partial</option>
+                                        <option value="paid">✅ Fully Paid</option>
+                                        <option value="unpaid">⏳ Unpaid / Credit</option>
+                                        <option value="partial">🌗 Partial Payment</option>
                                     </select>
                                 </div>
                                 <div class="swal-field">
-                                    <div class="swal-label">Money received (₱)</div>
-                                    <input id="swal_received" type="number" min="0" step="0.01" class="swal2-input">
+                                    <div class="swal-label">Amount Received (₱)</div>
+                                    <input id="swal_received" type="number" min="0" step="0.01" class="swal2-input" placeholder="0.00">
                                 </div>
                             </div>
 
                             <div class="swal-row">
                                 <div class="swal-field full">
-                                    <div class="swal-label">Remarks</div>
-                                    <input id="swal_remarks" class="swal2-input" placeholder="optional notes">
+                                    <div class="swal-label">Additional Remarks (Optional)</div>
+                                    <input id="swal_remarks" class="swal2-input" placeholder="Specify any extra details">
                                 </div>
                             </div>
 
                             <div class="swal-total-wrap">
-                                <div class="swal-total-label">Total</div>
+                                <div class="swal-total-label">Grand Total</div>
                                 <div class="swal-total-bar">
                                     <div id="swal_total_main" class="swal-total-main">₱ 0.00</div>
-                                    <div id="swal_total_sub" class="swal-total-sub">
-                                        0 × ₱ 0.00 per container
-                                    </div>
+                                    <div id="swal_total_sub" class="swal-total-sub">0 × ₱ 0.00 each</div>
                                 </div>
                             </div>
                         </div>
@@ -345,7 +343,7 @@
                             const change = Math.max(0, r - t);
 
                             totalMain.textContent = '₱ ' + t.toFixed(2);
-                            let subText = q + ' × ₱ ' + p.toFixed(2) + ' per item';
+                            let subText = q + ' × ₱ ' + p.toFixed(2) + ' each';
                             if (r > t) {
                                 subText += ' | Change: ₱ ' + change.toFixed(2);
                             }
