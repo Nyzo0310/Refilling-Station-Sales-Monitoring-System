@@ -12,12 +12,15 @@ class LoginController extends Controller
     /**
      * Show the login form.
      */
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
         if (Auth::check()) {
             return redirect()->route('admin.dashboard');
         }
-        return view('auth.login');
+
+        $rememberedEmail = $request->cookie('remember_email');
+
+        return view('auth.login', compact('rememberedEmail'));
     }
 
     /**
@@ -35,7 +38,14 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('admin.dashboard'));
+            if ($remember) {
+                // Store email for 30 days
+                return redirect()->intended(route('admin.dashboard'))
+                    ->withCookie(cookie('remember_email', $credentials['email'], 43200));
+            } else {
+                return redirect()->intended(route('admin.dashboard'))
+                    ->forgetCookie('remember_email');
+            }
         }
 
         throw ValidationException::withMessages([

@@ -162,6 +162,31 @@
             color: #64748b;
             cursor: pointer;
         }
+
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--water-accent);
+        }
     </style>
 </head>
 <body>
@@ -182,21 +207,45 @@
             @csrf
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder="admin@example.com">
+                <input type="email" id="email" name="email" value="{{ $rememberedEmail ?? old('email') }}" required autofocus placeholder="admin@example.com">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="••••••••">
+                <div class="password-container">
+                    <input type="password" id="password" name="password" required placeholder="••••••••" style="padding-right: 50px;">
+                    <button type="button" id="togglePassword" class="password-toggle" title="Show/Hide Password">
+                        <span id="toggleIcon">👁️</span>
+                    </button>
+                </div>
             </div>
 
             <div class="remember-wrap">
-                <input type="checkbox" id="remember" name="remember">
+                <input type="checkbox" id="remember" name="remember" {{ isset($rememberedEmail) ? 'checked' : '' }}>
                 <label for="remember">Keep me logged in</label>
             </div>
 
             <button type="submit" class="btn-login">Sign In</button>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (toggleBtn && passwordInput) {
+                toggleBtn.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    // Toggle icon
+                    toggleIcon.textContent = type === 'password' ? '👁️' : '🔒';
+                    toggleBtn.title = type === 'password' ? 'Show Password' : 'Hide Password';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
