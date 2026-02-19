@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0369a1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M50 5 C50 5 15 45 15 70 A35 35 0 0 0 85 70 C85 45 50 5 50 5 Z" fill="url(#grad)" />
+  <text x="50" y="75" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle">RS</text>
+</svg>

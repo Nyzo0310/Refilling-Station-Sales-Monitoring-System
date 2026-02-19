@@ -42,7 +42,7 @@
         </div>
         <div class="admin-topbar-right">
             <span class="pill-date">{{ now()->format('M d, Y') }}</span>
-            <div class="avatar-small">A</div>
+            <div class="avatar-small">{{ substr(Auth::user()->name, 0, 1) }}</div>
         </div>
     </header>
 
