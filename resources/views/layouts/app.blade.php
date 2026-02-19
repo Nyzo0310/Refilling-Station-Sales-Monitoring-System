@@ -317,6 +317,40 @@
             .admin-topbar-sub { display: none; }
         }
 
+        /* ---- Standardized Filter Bar ---- */
+        .filters-bar-standard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filters-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pills-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding-bottom: 2px;
+        }
+        .filter-pills-row::-webkit-scrollbar { display: none; }
+
+        @media (max-width: 768px) {
+            .filters-bar-standard { flex-direction: column; align-items: stretch; gap: 12px; }
+            .filters-group { flex-direction: column; align-items: stretch; gap: 12px; }
+            .filter-pills-row { justify-content: space-between; gap: 4px; }
+            .filter-pills-row .pill-filter { flex: 1; padding: 8px 4px; font-size: 12px; text-align: center; }
+            .select-sm, .input-search, .admin-btn-primary, .btn-primary { width: 100% !important; height: 46px; }
+        }
+
         /* ---- Generic cards + grids ---- */
         .card {
             background: white;

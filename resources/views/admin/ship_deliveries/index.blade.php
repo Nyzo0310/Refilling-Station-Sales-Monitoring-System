@@ -86,21 +86,23 @@
         <div class="card" style="margin-bottom: 20px;">
             <form method="GET"
                 action="{{ route('admin.ship-deliveries.index') }}"
-                class="filters-bar" style="margin-bottom: 0;">
+                class="filters-bar-standard" style="margin-bottom: 0;">
 
-                <div class="filters-left">
-                    <button type="submit" name="range" value="today"
-                            class="pill-filter {{ $range === 'today' ? 'active' : '' }}">
-                        Today
-                    </button>
-                    <button type="submit" name="range" value="week"
-                            class="pill-filter {{ $range === 'week' ? 'active' : '' }}">
-                        This Week
-                    </button>
-                    <button type="submit" name="range" value="month"
-                            class="pill-filter {{ $range === 'month' ? 'active' : '' }}">
-                        This Month
-                    </button>
+                <div class="filters-group">
+                    <div class="filter-pills-row">
+                        <button type="submit" name="range" value="today"
+                                class="pill-filter {{ $range === 'today' ? 'active' : '' }}">
+                            Today
+                        </button>
+                        <button type="submit" name="range" value="week"
+                                class="pill-filter {{ $range === 'week' ? 'active' : '' }}">
+                            Week
+                        </button>
+                        <button type="submit" name="range" value="month"
+                                class="pill-filter {{ $range === 'month' ? 'active' : '' }}">
+                            Month
+                        </button>
+                    </div>
 
                     <select name="payment_status" class="select-sm" onchange="this.form.submit()">
                         <option value="" {{ $paymentStatus === '' ? 'selected' : '' }}>All payment status</option>
@@ -110,14 +112,15 @@
                     </select>
                 </div>
 
-                <div class="filters-right">
+                <div class="filters-group" style="flex: 1; justify-content: flex-end;">
                     <input type="text"
                            name="q"
                            class="input-search"
                            placeholder="Search ship, crew, container..."
-                           value="{{ $q }}">
+                           value="{{ $q }}"
+                           style="flex: 1; min-width: 200px;">
                     <button type="button" class="btn-primary" id="btnAddDelivery">
-                        Ship Delivery
+                        + Ship Delivery
                     </button>
                 </div>
             </form>

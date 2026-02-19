@@ -120,22 +120,27 @@
                 <div class="card-subtext-muted">Total recorded for this period.</div>
             </div>
 
-            <div class="card" style="display: flex; align-items: center; justify-content: center;">
-                <button id="btnAddExpense" class="admin-btn-primary" style="width: 100%; height: 50px; border-radius: 15px; font-weight: 700; font-size: 15px;">
-                    + Record New Expense
-                </button>
+            <div class="card">
+                <div class="card-label">Average Expense / Day</div>
+                <div class="card-value-xl">₱ {{ number_format($totalExpenses / max(1, $expenses->total()), 2) }}</div>
+                <div class="card-subtext-muted">Based on selected range.</div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="filters-bar" style="margin-bottom: 20px;">
-                <div class="filters-left">
+        <div class="card" style="margin-bottom: 25px;">
+            <div class="filters-bar-standard">
+                <div class="filter-pills-row">
                     <a href="?range=today" class="pill-filter {{ $range === 'today' ? 'active' : '' }}">Today</a>
-                    <a href="?range=week" class="pill-filter {{ $range === 'week' ? 'active' : '' }}">This Week</a>
-                    <a href="?range=month" class="pill-filter {{ $range === 'month' ? 'active' : '' }}">This Month</a>
+                    <a href="?range=week" class="pill-filter {{ $range === 'week' ? 'active' : '' }}">Week</a>
+                    <a href="?range=month" class="pill-filter {{ $range === 'month' ? 'active' : '' }}">Month</a>
                     <a href="?range=all" class="pill-filter {{ $range === 'all' ? 'active' : '' }}">All Time</a>
                 </div>
+                
+                <button id="btnAddExpense" class="admin-btn-primary" style="padding: 10px 24px; border-radius: 12px; font-weight: 700;">
+                    + Record Expense
+                </button>
             </div>
+        </div>
 
             <div style="overflow-x: auto;">
                 <table class="expenses-table">

@@ -79,21 +79,24 @@
 
         {{-- Filters Section --}}
         <div class="card" style="margin-bottom: 20px;">
-            <form method="GET" action="{{ route('admin.walkin.index') }}" class="filters-bar" style="margin-bottom: 0;">
-                <div class="filters-left">
-                    <button type="submit" name="range" value="today"
-                            class="pill-filter {{ $range === 'today' ? 'active' : '' }}">
-                        Today
-                    </button>
-                    <button type="submit" name="range" value="week"
-                            class="pill-filter {{ $range === 'week' ? 'active' : '' }}">
-                        This Week
-                    </button>
-                    <button type="submit" name="range" value="month"
-                            class="pill-filter {{ $range === 'month' ? 'active' : '' }}">
-                        This Month
-                    </button>
-                    <span class="pill-filter" style="opacity:.6;cursor:default;">
+            <form method="GET" action="{{ route('admin.walkin.index') }}" class="filters-bar-standard" style="margin-bottom: 0;">
+                <div class="filters-group">
+                    <div class="filter-pills-row">
+                        <button type="submit" name="range" value="today"
+                                class="pill-filter {{ $range === 'today' ? 'active' : '' }}">
+                            Today
+                        </button>
+                        <button type="submit" name="range" value="week"
+                                class="pill-filter {{ $range === 'week' ? 'active' : '' }}">
+                            Week
+                        </button>
+                        <button type="submit" name="range" value="month"
+                                class="pill-filter {{ $range === 'month' ? 'active' : '' }}">
+                            Month
+                        </button>
+                    </div>
+
+                    <span class="pill-filter hidden-mobile" style="opacity:.6;cursor:default;">
                         Custom range (soon)
                     </span>
 
@@ -104,14 +107,15 @@
                     </select>
                 </div>
 
-                <div class="filters-right">
+                <div class="filters-group" style="flex: 1; justify-content: flex-end;">
                     <input type="text"
                            name="q"
                            class="input-search"
                            placeholder="Search container / note..."
-                           value="{{ $q }}">
+                           value="{{ $q }}"
+                           style="flex: 1; min-width: 200px;">
                     <button type="button" class="btn-primary" id="btnAddWalkin">
-                        Walk-in Sale
+                        + Walk-in Sale
                     </button>
                 </div>
             </form>
