@@ -547,9 +547,9 @@
             <a href="{{ route('admin.ship-deliveries.index') }}"
                class="admin-nav-link {{ request()->routeIs('admin.ship-deliveries.index') ? 'active' : '' }}">
                 <div class="nav-icon-wrap">
-                    <img src="{{ asset('icons/admin/shipdelivery.png') }}" alt="" class="nav-icon">
+                    <img src="{{ asset('icons/admin/port.svg') }}" alt="" class="nav-icon">
                 </div>
-                <span class="label">Ship Deliveries</span>
+                <span class="label">Port Deliveries</span>
             </a>
 
             <div class="nav-section-title">Management</div>

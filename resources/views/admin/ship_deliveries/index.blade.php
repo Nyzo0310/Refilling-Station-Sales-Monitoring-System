@@ -58,9 +58,9 @@
         <div style="display: flex; align-items: center; gap: 12px;">
             <button class="mobile-toggle">☰</button>
             <div>
-                <div class="admin-topbar-title">Ship Deliveries</div>
+                <div class="admin-topbar-title">Port Deliveries</div>
                 <div class="admin-topbar-sub">
-                    Track gallons sold, revenue, and customers for over-the-counter refills.
+                    We deliver water to the port because it's near our refilling station.
                 </div>
             </div>
         </div>
@@ -120,7 +120,7 @@
                            value="{{ $q }}"
                            style="flex: 1; min-width: 200px;">
                     <button type="button" class="btn-primary" id="btnAddDelivery">
-                        + Ship Delivery
+                        + Port Delivery
                     </button>
                 </div>
             </form>
@@ -162,7 +162,7 @@
         {{-- Ship deliveries table --}}
         <div class="card" style="margin-top:24px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-                <h3 style="margin:0; font-size:18px;">Ship Delivery Log</h3>
+                <h3 style="margin:0; font-size:18px;">Port Delivery Log</h3>
                 <span style="font-size:12px; color:#64748b;">{{ $deliveries->total() }} records total</span>
             </div>
 
@@ -255,7 +255,7 @@
 
             btn.addEventListener('click', function () {
                 Swal.fire({
-                    title: 'ADD SHIP DELIVERY',
+                    title: 'ADD PORT DELIVERY',
                     html: `
                         <div class="swal-form">
                             <div class="swal-row">
@@ -463,7 +463,7 @@
                     };
 
                     Swal.fire({
-                        title: 'EDIT SHIP DELIVERY',
+                        title: 'EDIT PORT DELIVERY',
                         html: `
                             <div class="swal-form">
                                 <div class="swal-row">
