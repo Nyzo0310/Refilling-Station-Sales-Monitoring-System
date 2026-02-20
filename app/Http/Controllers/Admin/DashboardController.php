@@ -39,7 +39,16 @@ class DashboardController extends Controller
             ->sum('total_amount');
         $monthRevenue = $monthWalkinRev + $monthShipRev;
 
-        // Expenses
+        // Overall
+        $overallWalkinRev = TblSalesWalkin::sum('total_amount');
+        $overallShipRev   = TblShipDelivery::sum('total_amount');
+        $overallRevenue   = $overallWalkinRev + $overallShipRev;
+
+        // Overall Expenses
+        $overallExpenses = TblExpense::sum('amount');
+        $overallProfit   = $overallRevenue - $overallExpenses;
+
+        // Expenses (Month - for reference if needed, but we focus on overall now)
         $monthExpenses = TblExpense::where('date', '>=', $monthStart)
             ->sum('amount');
             
@@ -95,6 +104,9 @@ class DashboardController extends Controller
             'monthRevenue',
             'monthExpenses',
             'monthProfit',
+            'overallRevenue',
+            'overallExpenses',
+            'overallProfit',
             'overallSales',
             'backwashStatus',
             'gallonsSinceLast',

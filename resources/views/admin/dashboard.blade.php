@@ -13,6 +13,12 @@
         }
         .pulse-needed { animation: pulse-soft 2s infinite ease-in-out; }
 
+        .badge-chip-dark {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+
         .card-icon-bg {
             position: absolute;
             right: -10px;
@@ -69,30 +75,30 @@
                 </div>
             </div>
 
-            {{-- This Month --}}
+            {{-- Overall Summary --}}
             <div class="card metric-gradient-indigo" style="position: relative; overflow: hidden;">
                 <img src="{{ asset('icons/admin/reports.png') }}" class="card-icon-bg" alt="">
                 <div style="position: relative; z-index: 1;">
-                    <div class="card-label">THIS MONTH SUMMARY</div>
+                    <div class="card-label">OVERALL SUMMARY</div>
                     <div class="card-value-xl">
-                        ₱ {{ number_format($monthRevenue ?? 0, 2) }}
+                        ₱ {{ number_format($overallRevenue ?? 0, 2) }}
                     </div>
 
                     <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
                         <span class="badge-chip">
-                            Sales: ₱ {{ number_format($monthRevenue ?? 0, 2) }}
+                            Sales: ₱ {{ number_format($overallRevenue ?? 0, 2) }}
                         </span>
                         <span class="badge-chip">
-                            Expenses: ₱ {{ number_format($monthExpenses ?? 0, 2) }}
+                            Expenses: ₱ {{ number_format($overallExpenses ?? 0, 2) }}
                         </span>
-                        <span class="badge-chip {{ ($monthProfit ?? 0) >= 0 ? 'badge-chip-dark' : '' }}" 
-                              style="{{ ($monthProfit ?? 0) < 0 ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;' : '' }}">
-                            Profit: ₱ {{ number_format($monthProfit ?? 0, 2) }}
+                        <span class="badge-chip {{ ($overallProfit ?? 0) >= 0 ? 'badge-chip-dark' : '' }}" 
+                              style="{{ ($overallProfit ?? 0) < 0 ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;' : '' }}">
+                            Profit: ₱ {{ number_format($overallProfit ?? 0, 2) }}
                         </span>
                     </div>
 
                     <div class="card-subtext-muted" style="margin-top:8px;">
-                        Performance for <span style="font-weight: 600; color: #4338ca;">{{ now()->format('F Y') }}</span>
+                        Total performance across all records
                     </div>
                 </div>
             </div>
@@ -135,8 +141,8 @@
                         @csrf
                         @if ($canLogBackwash)
                             <button type="submit"
-                                    class="badge-chip badge-chip-dark"
-                                    style="cursor:pointer; border: 1px solid #38bdf8; width: 100%; justify-content: center; padding: 10px; background: rgba(56, 189, 248, 0.1); color: #f9fbff;">
+                                    class="badge-chip"
+                                    style="cursor:pointer; border: none; width: 100%; justify-content: center; padding: 12px; background: #0ea5e9; color: white; font-weight: 800; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);">
                                 LOG BACKWASH COMPLETION
                             </button>
                         @else
