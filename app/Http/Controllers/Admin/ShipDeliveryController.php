@@ -13,7 +13,7 @@ class ShipDeliveryController extends Controller
     // ========== LIST / PAGE ==========
     public function index(Request $request)
     {
-        $range         = $request->query('range', 'today');      // today|week|month
+        $range         = $request->query('range', 'all');      // today|week|month|all|custom
         $paymentStatus = $request->query('payment_status', '');  // '', paid, unpaid, partial
         $q             = trim((string) $request->query('q', ''));
 
@@ -56,10 +56,8 @@ class ShipDeliveryController extends Controller
                 break;
 
             default:
-                $range      = 'today';
-                $start      = $now->copy()->startOfDay();
-                $end        = $now->copy()->endOfDay();
-                $rangeLabel = 'Today';
+                $range      = 'all';
+                $rangeLabel = 'All Time';
                 break;
         }
 

@@ -12,7 +12,7 @@ class WalkinSalesController extends Controller
 {
     public function index(Request $request)
     {
-        $range        = $request->query('range', 'today'); // today|week|month
+        $range        = $request->query('range', 'all'); // today|week|month|all|custom
         $customerType = $request->query('customer_type', '');
         $q            = trim((string) $request->query('q', ''));
 
@@ -51,10 +51,7 @@ class WalkinSalesController extends Controller
                 }
                 break;
             default:
-                $range      = 'today';
-                $start      = $now->copy()->startOfDay();
-                $end        = $now->copy()->endOfDay();
-                $rangeLabel = 'Today';
+                $rangeLabel = 'All Time';
                 break;
         }
 

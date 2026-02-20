@@ -11,7 +11,7 @@ class ExpenseController extends Controller
 {
     public function index(Request $request)
     {
-        $range = $request->query('range', 'today');
+        $range = $request->query('range', 'all');
         $tz = 'Asia/Manila';
         $today = Carbon::today($tz);
         
