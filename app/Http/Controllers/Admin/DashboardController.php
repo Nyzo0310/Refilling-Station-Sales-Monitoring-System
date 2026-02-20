@@ -19,11 +19,11 @@ class DashboardController extends Controller
 
         // ===== COMBINED METRICS (WALK-IN + SHIP) =====
         
-        // Today
+        // Today (only count money actually received)
         $todayWalkinRev = TblSalesWalkin::whereDate('sold_at', $today)
-            ->sum('total_amount');
+            ->sum('money_received');
         $todayShipRev = TblShipDelivery::whereDate('delivered_at', $today)
-            ->sum('total_amount');
+            ->sum('money_received');
         $todayRevenue = $todayWalkinRev + $todayShipRev;
 
         $todayWalkinGal = TblSalesWalkin::whereDate('sold_at', $today)
@@ -32,16 +32,16 @@ class DashboardController extends Controller
             ->sum('quantity');
         $todayGallons = $todayWalkinGal + $todayShipGal;
 
-        // Month
+        // Month (only count money actually received)
         $monthWalkinRev = TblSalesWalkin::where('sold_at', '>=', $monthStart)
-            ->sum('total_amount');
+            ->sum('money_received');
         $monthShipRev = TblShipDelivery::where('delivered_at', '>=', $monthStart)
-            ->sum('total_amount');
+            ->sum('money_received');
         $monthRevenue = $monthWalkinRev + $monthShipRev;
 
-        // Overall
-        $overallWalkinRev = TblSalesWalkin::sum('total_amount');
-        $overallShipRev   = TblShipDelivery::sum('total_amount');
+        // Overall (only count money actually received)
+        $overallWalkinRev = TblSalesWalkin::sum('money_received');
+        $overallShipRev   = TblShipDelivery::sum('money_received');
         $overallRevenue   = $overallWalkinRev + $overallShipRev;
 
         // Overall Expenses

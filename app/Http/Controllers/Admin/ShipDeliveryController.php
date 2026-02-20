@@ -82,7 +82,7 @@ class ShipDeliveryController extends Controller
 
         $transactionsCount   = (clone $summaryQuery)->count();
         $totalContainers     = (clone $summaryQuery)->sum('quantity');
-        $totalRevenue        = (clone $summaryQuery)->sum('total_amount');
+        $totalRevenue        = (clone $summaryQuery)->sum('money_received');
         $avgPricePerContainer = $totalContainers > 0
             ? $totalRevenue / $totalContainers
             : 0;
@@ -130,6 +130,14 @@ class ShipDeliveryController extends Controller
         }
         $data['total_amount']          = $data['quantity'] * $data['price_per_container'];
         $data['payment_status']        = $data['payment_status'] ?? 'paid';
+
+        // Auto-sync money_received based on payment status
+        if ($data['payment_status'] === 'unpaid') {
+            $data['money_received'] = 0;
+        } elseif ($data['payment_status'] === 'paid') {
+            $data['money_received'] = $data['total_amount'];
+        }
+        // partial: keep whatever the user entered
         $data['container_size_liters'] = 3.785; // Default to 1 gallon
 
         $delivery = TblShipDelivery::create($data);
@@ -178,6 +186,14 @@ class ShipDeliveryController extends Controller
         $newQuantity = (float) $data['quantity'];
 
         $data['total_amount'] = $newQuantity * $data['price_per_container'];
+
+        // Auto-sync money_received based on payment status
+        if ($data['payment_status'] === 'unpaid') {
+            $data['money_received'] = 0;
+        } elseif ($data['payment_status'] === 'paid') {
+            $data['money_received'] = $data['total_amount'];
+        }
+        // partial: keep whatever the user entered
         
         $delivery->update($data);
 

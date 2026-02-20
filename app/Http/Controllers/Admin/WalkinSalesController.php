@@ -73,7 +73,7 @@ class WalkinSalesController extends Controller
         $salesQuery        = clone $base;
         $transactionsCount = (clone $summaryQuery)->count();
         $gallons           = (clone $summaryQuery)->sum('quantity'); // 1 qty = 1 gal
-        $revenue           = (clone $summaryQuery)->sum('total_amount');
+        $revenue           = (clone $summaryQuery)->sum('money_received');
         $avgPricePerGallon = $gallons > 0 ? $revenue / $gallons : 0;
 
         $sales = $salesQuery
@@ -117,6 +117,14 @@ class WalkinSalesController extends Controller
         $data['total_amount']   = $data['quantity'] * $data['price_per_container'];
         $data['payment_status'] = $data['payment_status'] ?? 'paid';
 
+        // Auto-sync money_received based on payment status
+        if ($data['payment_status'] === 'unpaid') {
+            $data['money_received'] = 0;
+        } elseif ($data['payment_status'] === 'paid') {
+            $data['money_received'] = $data['total_amount'];
+        }
+        // partial: keep whatever the user entered
+
         $sale = TblSalesWalkin::create($data);
 
         // 🔵 Update backwash gallons (usage-based: tracks every gallon dispensed)
@@ -154,6 +162,14 @@ class WalkinSalesController extends Controller
         $newQuantity = (float) $data['quantity'];
 
         $data['total_amount'] = $newQuantity * $data['price_per_container'];
+
+        // Auto-sync money_received based on payment status
+        if ($data['payment_status'] === 'unpaid') {
+            $data['money_received'] = 0;
+        } elseif ($data['payment_status'] === 'paid') {
+            $data['money_received'] = $data['total_amount'];
+        }
+        // partial: keep whatever the user entered
         
         $sale->update($data);
 
