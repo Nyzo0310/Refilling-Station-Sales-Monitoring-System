@@ -102,6 +102,22 @@
                                 class="pill-filter {{ $range === 'month' ? 'active' : '' }}">
                             Month
                         </button>
+                        <button type="submit" name="range" value="all"
+                                class="pill-filter {{ $range === 'all' ? 'active' : '' }}">
+                            All
+                        </button>
+                        <button type="button" id="btnCustomRange"
+                                class="pill-filter {{ $range === 'custom' ? 'active' : '' }}">
+                            Custom
+                        </button>
+                    </div>
+
+                    <div id="customRangeInputs" class="filters-group" style="display: {{ $range === 'custom' ? 'flex' : 'none' }}; align-items: center; gap: 8px;">
+                        <input type="hidden" name="range" value="custom" id="rangeInput" {{ $range === 'custom' ? '' : 'disabled' }}>
+                        <span style="font-size: 12px; color: #64748b;">From:</span>
+                        <input type="date" name="from_date" class="input-sm" value="{{ request('from_date') }}" onchange="this.form.submit()">
+                        <span style="font-size: 12px; color: #64748b; margin-left:8px;">To:</span>
+                        <input type="date" name="to_date" class="input-sm" value="{{ request('to_date') }}" onchange="this.form.submit()">
                     </div>
 
                     <select name="payment_status" class="select-sm" onchange="this.form.submit()">
@@ -215,6 +231,7 @@
                                             data-status="{{ $d->payment_status }}"
                                             data-money="{{ $d->money_received }}"
                                             data-remarks="{{ $d->remarks }}"
+                                            data-date="{{ $d->delivered_at?->format('Y-m-d') }}"
                                             style="color:var(--water-accent); padding:4px;" title="Edit">
                                         ✏️
                                     </button>
@@ -260,38 +277,42 @@
                         <div class="swal-form">
                             <div class="swal-row">
                                 <div class="swal-field">
+                                    <div class="swal-label">Date</div>
+                                    <input id="swal_delivered_at" type="date" class="swal2-input" value="{{ date('Y-m-d') }}">
+                                </div>
+                                <div class="swal-field">
                                     <div class="swal-label">What is the Ship's Name?</div>
                                     <input id="swal_ship_name" class="swal2-input" placeholder="e.g. MV Masagana">
                                 </div>
+                            </div>
+
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Who is the Crew? (Optional)</div>
                                     <input id="swal_crew_name" class="swal2-input" placeholder="Name of recipient">
                                 </div>
-                            </div>
-
-                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Contact Number</div>
                                     <input id="swal_contact" class="swal2-input" placeholder="Optional ph/radio">
                                 </div>
+                            </div>
+
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Container Description</div>
                                     <input id="swal_container_type" class="swal2-input" placeholder="e.g. 200L Drum">
                                 </div>
-                            </div>
-
-                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">How many gallons?</div>
                                     <input id="swal_qty" type="number" min="1" class="swal2-input" value="1">
                                 </div>
+                            </div>
+
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Price per gallon (₱)</div>
                                     <input id="swal_price" type="number" min="0" step="0.01" class="swal2-input" placeholder="0.00">
                                 </div>
-                            </div>
-
-                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Payment status</div>
                                     <select id="swal_status" class="swal2-input swal-select">
@@ -300,14 +321,14 @@
                                         <option value="partial">🌗 Partial Payment</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Amount Received (₱)</div>
                                     <input id="swal_received" type="number" min="0" step="0.01" class="swal2-input" placeholder="0.00">
                                 </div>
-                            </div>
-
-                            <div class="swal-row">
-                                <div class="swal-field full">
+                                <div class="swal-field">
                                     <div class="swal-label">Additional Remarks (Optional)</div>
                                     <input id="swal_remarks" class="swal2-input" placeholder="Specify any extra details">
                                 </div>
@@ -365,6 +386,9 @@
                             else if (r > 0 && r < t) statusEl.value = 'partial';
                             else if (r >= t && t > 0) statusEl.value = 'paid';
                         });
+
+                        qtyEl.addEventListener('input', updateTotal);
+                        priceEl.addEventListener('input', updateTotal);
                         updateTotal();
                     },
                     preConfirm: () => {
@@ -390,6 +414,7 @@
                         }
 
                         return {
+                            delivered_at: document.getElementById('swal_delivered_at').value,
                             ship_name: ship,
                             crew_name: document.getElementById('swal_crew_name').value,
                             contact_number: document.getElementById('swal_contact').value,
@@ -459,7 +484,8 @@
                         price: this.dataset.price,
                         status: this.dataset.status,
                         money: this.dataset.money || 0,
-                        remarks: this.dataset.remarks || ''
+                        remarks: this.dataset.remarks || '',
+                        date: this.dataset.date
                     };
 
                     Swal.fire({
@@ -468,35 +494,39 @@
                             <div class="swal-form">
                                 <div class="swal-row">
                                     <div class="swal-field">
+                                        <div class="swal-label">Date</div>
+                                        <input id="edit_delivered_at" type="date" class="swal2-input" value="${initialData.date}">
+                                    </div>
+                                    <div class="swal-field">
                                         <div class="swal-label">Ship name</div>
                                         <input id="edit_ship_name" class="swal2-input" value="${initialData.ship}">
                                     </div>
+                                </div>
+                                <div class="swal-row">
                                     <div class="swal-field">
                                         <div class="swal-label">Crew name</div>
                                         <input id="edit_crew_name" class="swal2-input" value="${initialData.crew}">
                                     </div>
-                                </div>
-                                <div class="swal-row">
                                     <div class="swal-field">
                                         <div class="swal-label">Contact number</div>
                                         <input id="edit_contact" class="swal2-input" value="${initialData.contact}">
                                     </div>
+                                </div>
+                                <div class="swal-row">
                                     <div class="swal-field">
                                         <div class="swal-label">Container type</div>
                                         <input id="edit_container_type" class="swal2-input" value="${initialData.container}">
                                     </div>
-                                </div>
-                                <div class="swal-row">
                                     <div class="swal-field">
                                         <div class="swal-label">Quantity</div>
                                         <input id="edit_qty" type="number" min="1" class="swal2-input" value="${initialData.qty}">
                                     </div>
+                                </div>
+                                <div class="swal-row">
                                     <div class="swal-field">
                                         <div class="swal-label">Price / unit (₱)</div>
                                         <input id="edit_price" type="number" min="0" step="0.01" class="swal2-input" value="${initialData.price}">
                                     </div>
-                                </div>
-                                <div class="swal-row">
                                     <div class="swal-field">
                                         <div class="swal-label">Payment status</div>
                                         <select id="edit_status" class="swal2-input swal-select">
@@ -505,13 +535,13 @@
                                             <option value="partial" ${initialData.status === 'partial' ? 'selected' : ''}>Partial</option>
                                         </select>
                                     </div>
+                                </div>
+                                <div class="swal-row">
                                     <div class="swal-field">
                                         <div class="swal-label">Money received (₱)</div>
                                         <input id="edit_received" type="number" min="0" step="0.01" class="swal2-input" value="${initialData.money}">
                                     </div>
-                                </div>
-                                <div class="swal-row">
-                                    <div class="swal-field full">
+                                    <div class="swal-field">
                                         <div class="swal-label">Remarks</div>
                                         <input id="edit_remarks" class="swal2-input" value="${initialData.remarks}">
                                     </div>
@@ -563,10 +593,14 @@
                                 else if (r > 0 && r < t) statusEl.value = 'partial';
                                 else if (r >= t && t > 0) statusEl.value = 'paid';
                             });
+
+                            qtyEl.addEventListener('input', updateTotal);
+                            priceEl.addEventListener('input', updateTotal);
                             updateTotal();
                         },
                         preConfirm: () => {
                             return {
+                                delivered_at: document.getElementById('edit_delivered_at').value,
                                 ship_name: document.getElementById('edit_ship_name').value,
                                 crew_name: document.getElementById('edit_crew_name').value,
                                 contact_number: document.getElementById('edit_contact').value,
@@ -651,6 +685,18 @@
                         }
                     });
                 });
+            });
+        }
+
+        // Custom range toggle
+        const btnCustomRange = document.getElementById('btnCustomRange');
+        const customInputs = document.getElementById('customRangeInputs');
+        const rangeInput = document.getElementById('rangeInput');
+        if (btnCustomRange && customInputs) {
+            btnCustomRange.addEventListener('click', function() {
+                const isHidden = customInputs.style.display === 'none';
+                customInputs.style.display = isHidden ? 'flex' : 'none';
+                rangeInput.disabled = !isHidden;
             });
         }
 

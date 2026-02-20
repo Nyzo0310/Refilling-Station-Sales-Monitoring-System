@@ -212,6 +212,11 @@
                                 <option value="misc">📦 Other / Miscellaneous</option>
                             </select>
 
+                            <div id="specific_type_wrap" style="display: none;">
+                                <label class="swal-label">Specific Title</label>
+                                <input type="text" id="specific_type" class="swal2-input" placeholder="e.g. Office Supplies, Cleaning">
+                            </div>
+
                             <label class="swal-label">How much (₱)?</label>
                             <input type="number" id="amount" class="swal2-input" placeholder="0.00" step="0.01">
 
@@ -224,11 +229,34 @@
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Save Expense',
+                    didOpen: () => {
+                        const typeSelect = document.getElementById('expense_type');
+                        const specificWrap = document.getElementById('specific_type_wrap');
+                        const specificInput = document.getElementById('specific_type');
+
+                        typeSelect.addEventListener('change', () => {
+                            if (typeSelect.value === 'misc') {
+                                specificWrap.style.display = 'block';
+                                specificInput.focus();
+                            } else {
+                                specificWrap.style.display = 'none';
+                            }
+                        });
+                    },
                     preConfirm: () => {
-                        const type = document.getElementById('expense_type').value;
+                        let type = document.getElementById('expense_type').value;
+                        const specificType = document.getElementById('specific_type').value.trim();
                         const amount = document.getElementById('amount').value;
                         const date = document.getElementById('expense_date').value;
                         const remarks = document.getElementById('remarks').value;
+
+                        if (type === 'misc') {
+                            if (!specificType) {
+                                Swal.showValidationMessage('Please enter a specific title for "Other" expense');
+                                return false;
+                            }
+                            type = specificType;
+                        }
 
                         if (!amount || amount <= 0) {
                             Swal.showValidationMessage('Please enter a valid amount');

@@ -19,6 +19,9 @@ class WalkinSalesController extends Controller
         $tz  = config('app.timezone', 'Asia/Manila');
         $now = Carbon::now($tz);
 
+        $start = null;
+        $end   = null;
+
         switch ($range) {
             case 'week':
                 $start      = $now->copy()->startOfWeek();
@@ -30,6 +33,23 @@ class WalkinSalesController extends Controller
                 $end        = $now->copy()->endOfMonth();
                 $rangeLabel = 'This Month';
                 break;
+            case 'all':
+                $rangeLabel = 'All Time';
+                break;
+            case 'custom':
+                $fromDate = $request->query('from_date');
+                $toDate   = $request->query('to_date');
+                if ($fromDate && $toDate) {
+                    $start      = Carbon::parse($fromDate, $tz)->startOfDay();
+                    $end        = Carbon::parse($toDate, $tz)->endOfDay();
+                    $rangeLabel = $start->format('M d, Y') . ' - ' . $end->format('M d, Y');
+                } else {
+                    $range      = 'today';
+                    $start      = $now->copy()->startOfDay();
+                    $end        = $now->copy()->endOfDay();
+                    $rangeLabel = 'Today';
+                }
+                break;
             default:
                 $range      = 'today';
                 $start      = $now->copy()->startOfDay();
@@ -39,7 +59,9 @@ class WalkinSalesController extends Controller
         }
 
         $base = TblSalesWalkin::query()
-            ->whereBetween('sold_at', [$start, $end])
+            ->when($start && $end, function ($q) use ($start, $end) {
+                $q->whereBetween('sold_at', [$start, $end]);
+            })
             ->when($customerType !== '', function ($q2) use ($customerType) {
                 $q2->where('customer_type', $customerType);
             })
@@ -87,9 +109,14 @@ class WalkinSalesController extends Controller
             'payment_status'      => ['nullable', 'in:paid,unpaid,partial'],
             'money_received'      => ['nullable', 'numeric', 'min:0'],
             'note'                => ['nullable', 'string', 'max:255'],
+            'sold_at'             => ['nullable', 'date'],
         ]);
 
-        $data['sold_at']        = Carbon::now($tz);
+        if (!empty($data['sold_at'])) {
+            $data['sold_at'] = Carbon::parse($data['sold_at'], $tz)->setTimeFrom($now = Carbon::now($tz));
+        } else {
+            $data['sold_at'] = Carbon::now($tz);
+        }
         $data['total_amount']   = $data['quantity'] * $data['price_per_container'];
         $data['payment_status'] = $data['payment_status'] ?? 'paid';
 

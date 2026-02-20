@@ -20,6 +20,9 @@ class ShipDeliveryController extends Controller
         $tz  = config('app.timezone', 'Asia/Manila');
         $now = Carbon::now($tz);
 
+        $start = null;
+        $end   = null;
+
         switch ($range) {
             case 'week':
                 $start      = $now->copy()->startOfWeek();
@@ -33,6 +36,25 @@ class ShipDeliveryController extends Controller
                 $rangeLabel = 'This Month';
                 break;
 
+            case 'all':
+                $rangeLabel = 'All Time';
+                break;
+
+            case 'custom':
+                $fromDate = $request->query('from_date');
+                $toDate   = $request->query('to_date');
+                if ($fromDate && $toDate) {
+                    $start      = Carbon::parse($fromDate, $tz)->startOfDay();
+                    $end        = Carbon::parse($toDate, $tz)->endOfDay();
+                    $rangeLabel = $start->format('M d, Y') . ' - ' . $end->format('M d, Y');
+                } else {
+                    $range      = 'today';
+                    $start      = $now->copy()->startOfDay();
+                    $end        = $now->copy()->endOfDay();
+                    $rangeLabel = 'Today';
+                }
+                break;
+
             default:
                 $range      = 'today';
                 $start      = $now->copy()->startOfDay();
@@ -42,7 +64,9 @@ class ShipDeliveryController extends Controller
         }
 
         $base = TblShipDelivery::query()
-            ->whereBetween('delivered_at', [$start, $end])
+            ->when($start && $end, function ($q) use ($start, $end) {
+                $q->whereBetween('delivered_at', [$start, $end]);
+            })
             ->when($paymentStatus !== '', function ($q2) use ($paymentStatus) {
                 $q2->where('payment_status', $paymentStatus);
             })
@@ -98,9 +122,14 @@ class ShipDeliveryController extends Controller
             'payment_status'        => ['nullable', 'in:paid,unpaid,partial'],
             'money_received'        => ['nullable', 'numeric', 'min:0'],
             'remarks'               => ['nullable', 'string', 'max:500'],
+            'delivered_at'          => ['nullable', 'date'],
         ]);
 
-        $data['delivered_at']          = Carbon::now($tz);
+        if (!empty($data['delivered_at'])) {
+            $data['delivered_at'] = Carbon::parse($data['delivered_at'], $tz)->setTimeFrom(Carbon::now($tz));
+        } else {
+            $data['delivered_at'] = Carbon::now($tz);
+        }
         $data['total_amount']          = $data['quantity'] * $data['price_per_container'];
         $data['payment_status']        = $data['payment_status'] ?? 'paid';
         $data['container_size_liters'] = 3.785; // Default to 1 gallon
@@ -137,7 +166,13 @@ class ShipDeliveryController extends Controller
             'payment_status'        => ['required', 'in:paid,unpaid,partial'],
             'money_received'        => ['nullable', 'numeric', 'min:0'],
             'remarks'               => ['nullable', 'string', 'max:500'],
+            'delivered_at'          => ['nullable', 'date'],
         ]);
+
+        if (!empty($data['delivered_at'])) {
+            $tz = config('app.timezone', 'Asia/Manila');
+            $data['delivered_at'] = Carbon::parse($data['delivered_at'], $tz)->setTimeFrom($delivery->delivered_at);
+        }
 
         $oldStatus   = $delivery->payment_status;
         $oldQuantity = (float) $delivery->quantity;

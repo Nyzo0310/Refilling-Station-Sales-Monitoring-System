@@ -94,11 +94,23 @@
                                 class="pill-filter {{ $range === 'month' ? 'active' : '' }}">
                             Month
                         </button>
+                        <button type="submit" name="range" value="all"
+                                class="pill-filter {{ $range === 'all' ? 'active' : '' }}">
+                            All
+                        </button>
+                        <button type="button" id="btnCustomRange"
+                                class="pill-filter {{ $range === 'custom' ? 'active' : '' }}">
+                            Custom
+                        </button>
                     </div>
 
-                    <span class="pill-filter hidden-mobile" style="opacity:.6;cursor:default;">
-                        Custom range (soon)
-                    </span>
+                    <div id="customRangeInputs" class="filters-group" style="display: {{ $range === 'custom' ? 'flex' : 'none' }}; align-items: center; gap: 8px;">
+                        <input type="hidden" name="range" value="custom" id="rangeInput" {{ $range === 'custom' ? '' : 'disabled' }}>
+                        <span style="font-size: 12px; color: #64748b;">From:</span>
+                        <input type="date" name="from_date" class="input-sm" value="{{ request('from_date') }}" onchange="this.form.submit()">
+                        <span style="font-size: 12px; color: #64748b;">To:</span>
+                        <input type="date" name="to_date" class="input-sm" value="{{ request('to_date') }}" onchange="this.form.submit()">
+                    </div>
 
                     <select name="customer_type" class="select-sm" onchange="this.form.submit()">
                         <option value="" {{ $customerType === '' ? 'selected' : '' }}>All customer types</option>
@@ -202,6 +214,7 @@
                                                 data-status="{{ $sale->payment_status }}"
                                                 data-received="{{ $sale->money_received }}"
                                                 data-note="{{ $sale->note }}"
+                                                data-date="{{ $sale->sold_at?->format('Y-m-d') }}"
                                                 style="color:var(--water-accent); padding:4px;" title="Edit">
                                             ✏️
                                         </button>
@@ -245,28 +258,32 @@
                         <div class="swal-form">
                             <div class="swal-row">
                                 <div class="swal-field">
+                                    <div class="swal-label">Date</div>
+                                    <input id="swal_sold_at" type="date" class="swal2-input" value="{{ date('Y-m-d') }}">
+                                </div>
+                                <div class="swal-field">
                                     <div class="swal-label">Customer Category</div>
                                     <select id="swal_customer_type" class="swal2-input swal-select">
                                         <option value="neighbor">🏠 Neighbor (Local Area)</option>
                                         <option value="non_neighbor">🚶 Non-neighbor (Walk-in)</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Container Description</div>
                                     <input id="swal_container_type" class="swal2-input" placeholder="e.g. 5 Gallon Slim Blue">
                                 </div>
-                            </div>
-                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">How many gallons/containers?</div>
                                     <input id="swal_qty" type="number" min="1" value="1" class="swal2-input">
                                 </div>
+                            </div>
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Price per item (₱)</div>
                                     <input id="swal_price" type="number" step="0.01" min="0" class="swal2-input" placeholder="0.00">
                                 </div>
-                            </div>
-                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Payment Status</div>
                                     <select id="swal_payment_status" class="swal2-input swal-select">
@@ -275,13 +292,13 @@
                                         <option value="partial">🌗 Partial Payment</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Amount Received (₱)</div>
                                     <input id="swal_received" type="number" step="0.01" min="0" class="swal2-input" placeholder="0.00">
                                 </div>
-                            </div>
-                            <div class="swal-row">
-                                <div class="swal-field full">
+                                <div class="swal-field">
                                     <div class="swal-label">Internal Notes (Optional)</div>
                                     <input id="swal_note" class="swal2-input" placeholder="e.g. borrowed container, special request">
                                 </div>
@@ -340,6 +357,7 @@
                     },
                     preConfirm: () => {
                         return {
+                            sold_at: document.getElementById('swal_sold_at').value,
                             customer_type: document.getElementById('swal_customer_type').value,
                             container_type: document.getElementById('swal_container_type').value,
                             quantity: parseInt(document.getElementById('swal_qty').value || '0', 10),
@@ -374,6 +392,18 @@
             });
         }
 
+        // Custom range toggle
+        const btnCustomRange = document.getElementById('btnCustomRange');
+        const customInputs = document.getElementById('customRangeInputs');
+        const rangeInput = document.getElementById('rangeInput');
+        if (btnCustomRange && customInputs) {
+            btnCustomRange.addEventListener('click', function() {
+                const isHidden = customInputs.style.display === 'none';
+                customInputs.style.display = isHidden ? 'flex' : 'none';
+                rangeInput.disabled = !isHidden;
+            });
+        }
+
         // 🟢 Edit Sale
         document.querySelectorAll('.btn-edit-sale').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -384,6 +414,7 @@
                 const price = this.dataset.price;
                 const status = this.dataset.status;
                 const note = this.dataset.note;
+                const date = this.dataset.date;
                 const csrf = '{{ csrf_token() }}';
 
                 Swal.fire({
@@ -391,7 +422,11 @@
                     html: `
                         <div class="swal-form">
                             <div class="swal-row">
-                                <div class="swal-field full">
+                                <div class="swal-field">
+                                    <div class="swal-label">Date</div>
+                                    <input id="edit_sold_at" type="date" class="swal2-input" value="${date}">
+                                </div>
+                                <div class="swal-field">
                                     <div class="swal-label">Customer Category</div>
                                     <select id="edit_customer_type" class="swal2-input swal-select">
                                         <option value="neighbor" ${type === 'neighbor' ? 'selected' : ''}>🏠 Neighbor (Local Area)</option>
@@ -402,24 +437,21 @@
                             </div>
 
                             <div class="swal-row">
-                                <div class="swal-field full">
+                                <div class="swal-field">
                                     <div class="swal-label">Container Description</div>
                                     <input id="edit_container_type" class="swal2-input" value="${container || ''}" placeholder="e.g. 5 Gallon Slim Blue">
                                 </div>
-                            </div>
-
-                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">How many?</div>
                                     <input id="edit_qty" type="number" min="1" value="${qty}" class="swal2-input">
                                 </div>
+                            </div>
+
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Price per item (₱)</div>
                                     <input id="edit_price" type="number" step="0.01" min="0" value="${price}" class="swal2-input">
                                 </div>
-                            </div>
-
-                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Payment Status</div>
                                     <select id="edit_payment_status" class="swal2-input swal-select">
@@ -428,14 +460,14 @@
                                         <option value="partial" ${status === 'partial' ? 'selected' : ''}>🌗 Partial Payment</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div class="swal-row">
                                 <div class="swal-field">
                                     <div class="swal-label">Amount Received (₱)</div>
                                     <input id="edit_received" type="number" step="0.01" min="0" value="${this.dataset.received || 0}" class="swal2-input" placeholder="0.00">
                                 </div>
-                            </div>
-
-                            <div class="swal-row">
-                                <div class="swal-field full">
+                                <div class="swal-field">
                                     <div class="swal-label">Internal Notes (Optional)</div>
                                     <input id="edit_note" class="swal2-input" value="${note || ''}" placeholder="short internal note">
                                 </div>
@@ -504,6 +536,7 @@
                     },
                     preConfirm: () => {
                         return {
+                            sold_at: document.getElementById('edit_sold_at').value,
                             customer_type: document.getElementById('edit_customer_type').value,
                             container_type: document.getElementById('edit_container_type').value,
                             quantity: parseInt(document.getElementById('edit_qty').value || '0', 10),
