@@ -34,6 +34,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->name('walkin.index');
     Route::post('/walkin-sales', [WalkinSalesController::class, 'store'])
         ->name('walkin.store');
+    Route::get('/walkin-sales/{sale}', [WalkinSalesController::class, 'show'])
+        ->name('walkin.show');
     Route::patch('/walkin-sales/{sale}', [WalkinSalesController::class, 'update'])
         ->name('walkin.update');
     Route::delete('/walkin-sales/{sale}', [WalkinSalesController::class, 'destroy'])
@@ -44,6 +46,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->name('ship-deliveries.index');
     Route::post('/ship-deliveries', [ShipDeliveryController::class, 'store'])
         ->name('ship-deliveries.store');
+    Route::get('/ship-deliveries/{delivery}', [ShipDeliveryController::class, 'show'])
+        ->name('ship-deliveries.show');
     Route::patch('/ship-deliveries/{delivery}', [ShipDeliveryController::class, 'update'])
         ->name('ship-deliveries.update');
     Route::delete('/ship-deliveries/{delivery}', [ShipDeliveryController::class, 'destroy'])

@@ -245,4 +245,24 @@ class ShipDeliveryController extends Controller
 
         return redirect()->back()->with('success', 'Delivery deleted successfully.');
     }
+
+    public function show(TblShipDelivery $delivery)
+    {
+        return response()->json([
+            'ok' => true,
+            'data' => [
+                'id' => $delivery->id,
+                'date' => $delivery->delivered_at ? $delivery->delivered_at->format('M d, Y h:i A') : '',
+                'ship_name' => $delivery->ship_name,
+                'crew_name' => $delivery->crew_name,
+                'container_type' => $delivery->container_type,
+                'quantity' => $delivery->quantity,
+                'price_per_container' => $delivery->price_per_container,
+                'total_amount' => $delivery->total_amount,
+                'payment_status' => $delivery->payment_status,
+                'money_received' => $delivery->money_received,
+                'remarks' => $delivery->remarks
+            ]
+        ]);
+    }
 }

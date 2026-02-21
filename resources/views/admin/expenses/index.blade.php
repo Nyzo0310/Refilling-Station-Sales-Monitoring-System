@@ -217,11 +217,11 @@
                                 <td style="color: #64748b; font-size: 13px;">
                                     @if($expense->remarks)
                                         @if(preg_match('/Walk-in sale #(\d+)/', $expense->remarks, $matches))
-                                            <a href="{{ route('admin.walkin.index', ['q' => $matches[1]]) }}" style="color: #0284c7; text-decoration: none; font-weight: 600;">
+                                            <a href="#" class="btn-view-transaction" data-type="walkin" data-id="{{ $matches[1] }}" style="color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer;">
                                                 {{ $expense->remarks }}
                                             </a>
                                         @elseif(preg_match('/Port delivery #(\d+)/', $expense->remarks, $matches))
-                                            <a href="{{ route('admin.ship-deliveries.index', ['q' => $matches[1]]) }}" style="color: #0284c7; text-decoration: none; font-weight: 600;">
+                                            <a href="#" class="btn-view-transaction" data-type="ship" data-id="{{ $matches[1] }}" style="color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer;">
                                                 {{ $expense->remarks }}
                                             </a>
                                         @else
@@ -473,6 +473,118 @@
                     })
                     .catch(err => {
                         Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Something went wrong.' });
+                    });
+                });
+            });
+        });
+        // ─── VIEW TRANSACTION MODAL ────────────────────────────────────────────────
+        document.querySelectorAll('.btn-view-transaction').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const type = this.dataset.type;
+                const id = this.dataset.id;
+                
+                const url = type === 'walkin' ? `/admin/walkin-sales/${id}` : `/admin/ship-deliveries/${id}`;
+                
+                Swal.fire({
+                    title: 'Loading Data...',
+                    didOpen: () => Swal.showLoading(),
+                    allowOutsideClick: false,
+                    showConfirmButton: false
+                });
+
+                fetch(url, {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.ok ? res.json() : Promise.reject('Failed to load transaction'))
+                .then(data => {
+                    if (!data.ok) throw new Error('Transaction not found');
+                    const t = data.data;
+                    
+                    let htmlContent = `<div style="text-align: left; font-size: 14px; padding-top: 10px;">`;
+                    htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #94a3b8; font-weight: 600;">Transaction ID</span>
+                        <span style="font-weight: 700; color: #38bdf8;">#${t.id}</span>
+                    </div>`;
+                    htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #94a3b8; font-weight: 600;">Date</span>
+                        <span style="font-weight: 600; color: #f8fafc;">${t.date}</span>
+                    </div>`;
+
+                    if (type === 'walkin') {
+                        htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: #94a3b8; font-weight: 600;">Customer Type</span>
+                            <span style="font-weight: 600; color: #f8fafc;">${t.customer_type}</span>
+                        </div>`;
+                    } else {
+                        htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: #94a3b8; font-weight: 600;">Ship Name</span>
+                            <span style="font-weight: 600; color: #f8fafc;">${t.ship_name}</span>
+                        </div>`;
+                        if (t.crew_name) {
+                            htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <span style="color: #94a3b8; font-weight: 600;">Crew Name</span>
+                                <span style="font-weight: 600; color: #f8fafc;">${t.crew_name}</span>
+                            </div>`;
+                        }
+                    }
+
+                    htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #94a3b8; font-weight: 600;">Container Type</span>
+                        <span style="font-weight: 600; color: #f8fafc;">${t.container_type}</span>
+                    </div>`;
+                    htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #94a3b8; font-weight: 600;">Quantity (Gallons)</span>
+                        <span style="font-weight: 600; color: #f8fafc;">${t.quantity}</span>
+                    </div>`;
+                    htmlContent += `<hr style="border-color: #1e293b; margin: 15px 0;" />`;
+                    htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #94a3b8; font-weight: 600;">Total Amount</span>
+                        <span style="font-weight: 700; color: #10b981;">₱ ${parseFloat(t.total_amount).toFixed(2)}</span>
+                    </div>`;
+                    
+                    let statusColor = t.payment_status === 'Paid' ? '#10b981' : (t.payment_status === 'Partial' ? '#f59e0b' : '#ef4444');
+                    htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="color: #94a3b8; font-weight: 600;">Payment Status</span>
+                        <span style="font-weight: 700; color: ${statusColor};">${t.payment_status}</span>
+                    </div>`;
+
+                    if (t.money_received > 0) {
+                        htmlContent += `<div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: #94a3b8; font-weight: 600;">Money Received</span>
+                            <span style="font-weight: 600; color: #f8fafc;">₱ ${parseFloat(t.money_received).toFixed(2)}</span>
+                        </div>`;
+                    }
+
+                    const notes = type === 'walkin' ? t.note : t.remarks;
+                    if (notes) {
+                        htmlContent += `<div style="margin-top: 15px;">
+                            <span style="color: #94a3b8; font-weight: 600; display: block; margin-bottom: 5px;">Remarks/Notes</span>
+                            <div style="background: rgba(15, 23, 42, 0.4); padding: 10px; border-radius: 8px; border: 1px solid #1e293b; color: #cbd5e1; font-style: italic;">
+                                ${notes}
+                            </div>
+                        </div>`;
+                    }
+
+                    htmlContent += `</div>`;
+
+                    Swal.fire({
+                        title: type === 'walkin' ? 'Walk-in Sale Details' : 'Port Delivery Details',
+                        html: htmlContent,
+                        customClass: {
+                            popup: 'swal-water swal-expenses',
+                            confirmButton: 'swal-confirm'
+                        },
+                        confirmButtonText: 'Close',
+                        width: '450px'
+                    });
+                })
+                .catch(err => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops!',
+                        text: 'Could not load transaction details.',
+                        customClass: { popup: 'swal-water swal-expenses', confirmButton: 'swal-confirm' }
                     });
                 });
             });

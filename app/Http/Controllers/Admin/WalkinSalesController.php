@@ -221,4 +221,23 @@ class WalkinSalesController extends Controller
 
         return redirect()->back()->with('success', 'Sale deleted successfully.');
     }
+
+    public function show(TblSalesWalkin $sale)
+    {
+        return response()->json([
+            'ok' => true,
+            'data' => [
+                'id' => $sale->id,
+                'date' => $sale->sold_at ? $sale->sold_at->format('M d, Y h:i A') : '',
+                'customer_type' => $sale->customer_type,
+                'container_type' => $sale->container_type,
+                'quantity' => $sale->quantity,
+                'price_per_container' => $sale->price_per_container,
+                'total_amount' => $sale->total_amount,
+                'payment_status' => $sale->payment_status,
+                'money_received' => $sale->money_received,
+                'note' => $sale->note
+            ]
+        ]);
+    }
 }
