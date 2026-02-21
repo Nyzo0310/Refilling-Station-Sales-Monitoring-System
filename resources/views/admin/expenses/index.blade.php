@@ -6,10 +6,124 @@
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css'>
 
     <style>
-        .expenses-header {
+        /* Stats Cards */
+        .expense-stat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .expense-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .expense-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .stat-subtext {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        /* Filter Pills Row */
+        .filter-controls {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+            margin-bottom: 25px;
+        }
+
+        .pill-group {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            gap: 4px;
+        }
+
+        .pill-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .pill-btn:hover {
+            color: #0f172a;
+        }
+
+        .pill-btn.active {
+            background: #ffffff;
+            color: #0ea5e9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        /* Table Design */
+        .table-wrapper {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
             margin-bottom: 25px;
         }
 
@@ -20,76 +134,132 @@
         }
 
         .expenses-table thead {
-            background: #f1f5f9;
-        }
-
-        .expenses-table th, 
-        .expenses-table td {
-            padding: 12px 15px;
-            text-align: left;
+            background: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
         }
 
         .expenses-table th {
-            font-size: 11px;
+            padding: 16px 20px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #64748b;
             font-weight: 700;
+            text-align: left;
         }
 
-        .badge-expense {
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 600;
-            background: #f1f5f9;
-            color: #475569;
+        .expenses-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
         }
+
+        .expenses-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .expenses-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-date {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .text-amount {
+            font-weight: 800;
+            color: #ef4444; 
+            font-family: inherit;
+            font-size: 15px;
+        }
+
+        /* Dynamic Badges */
+        .badge-dynamic {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-electricity { background: #fef3c7; color: #d97706; }
+        .badge-water { background: #e0f2fe; color: #0284c7; }
+        .badge-gas { background: #fee2e2; color: #dc2626; }
+        .badge-salary { background: #dcfce7; color: #16a34a; }
+        .badge-machine { background: #f3e8ff; color: #9333ea; }
+        .badge-delivery { background: #ffedd5; color: #ea580c; }
+        .badge-misc { background: #f1f5f9; color: #475569; }
 
         /* Action Buttons */
         .action-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
-            transition: all 0.18s ease;
-            font-size: 16px;
+            transition: all 0.2s ease;
+            font-size: 14px;
             text-decoration: none;
         }
 
         .action-btn-edit {
-            background: #eff6ff;
-            color: #2563eb;
+            background: #f1f5f9;
+            color: #64748b;
         }
 
         .action-btn-edit:hover {
-            background: #2563eb;
+            background: #38bdf8;
             color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px);
         }
 
         .action-btn-delete {
             background: #fef2f2;
-            color: #dc2626;
+            color: #ef4444;
         }
 
         .action-btn-delete:hover {
-            background: #dc2626;
+            background: #ef4444;
             color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
         .actions-cell {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #64748b;
+            font-size: 14px;
         }
 
         /* SweetAlert Form Styling */
@@ -162,35 +332,34 @@
     </header>
 
     <div class="admin-body">
-        <div class="grid-3" style="margin-bottom: 25px;">
-            <div class="card">
-                <div class="card-label">{{ $rangeLabel }} Expenses</div>
-                <div class="card-value-xl">₱ {{ number_format($totalExpenses, 2) }}</div>
-                <div class="card-subtext-muted">Total recorded for this period.</div>
+        <div class="grid-3" style="margin-bottom: 25px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+            <div class="expense-stat-card">
+                <div class="stat-label">{{ $rangeLabel }} Expenses</div>
+                <div class="stat-value">₱ {{ number_format($totalExpenses, 2) }}</div>
+                <div class="stat-subtext">Total recorded for this period.</div>
             </div>
 
-            <div class="card">
-                <div class="card-label">Average Expense / Day</div>
-                <div class="card-value-xl">₱ {{ number_format($totalExpenses / max(1, $expenses->total()), 2) }}</div>
-                <div class="card-subtext-muted">Based on selected range.</div>
-            </div>
-        </div>
-
-        <div class="card" style="margin-bottom: 25px;">
-            <div class="filters-bar-standard">
-                <div class="filter-pills-row">
-                    <a href="?range=today" class="pill-filter {{ $range === 'today' ? 'active' : '' }}">Today</a>
-                    <a href="?range=week" class="pill-filter {{ $range === 'week' ? 'active' : '' }}">Week</a>
-                    <a href="?range=month" class="pill-filter {{ $range === 'month' ? 'active' : '' }}">Month</a>
-                    <a href="?range=all" class="pill-filter {{ $range === 'all' ? 'active' : '' }}">All Time</a>
-                </div>
-                
-                <button id="btnAddExpense" class="admin-btn-primary" style="padding: 10px 24px; border-radius: 12px; font-weight: 700;">
-                    + Record Expense
-                </button>
+            <div class="expense-stat-card">
+                <div class="stat-label">Average Expense / Day</div>
+                <div class="stat-value">₱ {{ number_format($totalExpenses / max(1, $expenses->total()), 2) }}</div>
+                <div class="stat-subtext">Based on selected range.</div>
             </div>
         </div>
 
+        <div class="filter-controls">
+            <div class="pill-group">
+                <a href="?range=today" class="pill-btn {{ $range === 'today' ? 'active' : '' }}">Today</a>
+                <a href="?range=week" class="pill-btn {{ $range === 'week' ? 'active' : '' }}">Week</a>
+                <a href="?range=month" class="pill-btn {{ $range === 'month' ? 'active' : '' }}">Month</a>
+                <a href="?range=all" class="pill-btn {{ $range === 'all' ? 'active' : '' }}">All Time</a>
+            </div>
+            
+            <button id="btnAddExpense" class="btn-primary-gradient">
+                <i class="fi fi-rr-plus"></i> Record Expense
+            </button>
+        </div>
+
+        <div class="table-wrapper">
             <div style="overflow-x: auto;">
                 <table class="expenses-table">
                     <thead>
@@ -199,30 +368,45 @@
                             <th>Expense Type</th>
                             <th>Amount</th>
                             <th>Remarks</th>
-                            <th style="width: 100px; text-align: center;">Actions</th>
+                            <th style="width: 120px; text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($expenses as $expense)
+                            @php
+                                $typeLower = strtolower($expense->expense_type);
+                                $badgeClass = 'badge-misc';
+                                $icon = 'fi-rr-box';
+                                
+                                if (str_contains($typeLower, 'electricity')) { $badgeClass = 'badge-electricity'; $icon = 'fi-rr-bolt'; }
+                                elseif (str_contains($typeLower, 'water source')) { $badgeClass = 'badge-water'; $icon = 'fi-rr-drop'; }
+                                elseif (str_contains($typeLower, 'gas') || str_contains($typeLower, 'fuel')) { $badgeClass = 'badge-gas'; $icon = 'fi-rr-gas-pump'; }
+                                elseif (str_contains($typeLower, 'salary')) { $badgeClass = 'badge-salary'; $icon = 'fi-rr-users'; }
+                                elseif (str_contains($typeLower, 'machine')) { $badgeClass = 'badge-machine'; $icon = 'fi-rr-settings'; }
+                                elseif (str_contains($typeLower, 'delivery')) { $badgeClass = 'badge-delivery'; $icon = 'fi-rr-truck-side'; }
+                            @endphp
                             <tr>
-                                <td style="font-weight: 600; color: #0f172a;">
-                                    {{ $expense->date->format('M d, Y') }}
+                                <td class="text-date">
+                                    {{ $expense->date->format('M d, Y') }}<br>
+                                    <span style="font-size: 11px; color: #94a3b8; font-weight: 500;">{{ $expense->date->format('l') }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge-expense">{{ ucfirst($expense->expense_type) }}</span>
+                                    <span class="badge-dynamic {{ $badgeClass }}">
+                                        <i class="fi {{ $icon }}"></i> {{ ucfirst($expense->expense_type) }}
+                                    </span>
                                 </td>
-                                <td style="font-weight: 700; color: #b91c1c;">
+                                <td class="text-amount">
                                     ₱ {{ number_format($expense->amount, 2) }}
                                 </td>
-                                <td style="color: #64748b; font-size: 13px;">
+                                <td style="color: #475569; font-size: 13px;">
                                     @if($expense->remarks)
                                         @if(preg_match('/Walk-in sale #(\d+)/', $expense->remarks, $matches))
-                                            <a href="#" class="btn-view-transaction" data-type="walkin" data-id="{{ $matches[1] }}" style="color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer;">
-                                                {{ $expense->remarks }}
+                                            <a href="#" class="btn-view-transaction" data-type="walkin" data-id="{{ $matches[1] }}" style="color: #0ea5e9; text-decoration: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fi fi-rr-link" style="font-size: 12px;"></i> {{ $expense->remarks }}
                                             </a>
                                         @elseif(preg_match('/Port delivery #(\d+)/', $expense->remarks, $matches))
-                                            <a href="#" class="btn-view-transaction" data-type="ship" data-id="{{ $matches[1] }}" style="color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer;">
-                                                {{ $expense->remarks }}
+                                            <a href="#" class="btn-view-transaction" data-type="ship" data-id="{{ $matches[1] }}" style="color: #0ea5e9; text-decoration: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fi fi-rr-link" style="font-size: 12px;"></i> {{ $expense->remarks }}
                                             </a>
                                         @else
                                             {{ $expense->remarks }}
@@ -232,7 +416,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="actions-cell" style="justify-content: center;">
+                                    <div class="actions-cell">
                                         {{-- Edit Button --}}
                                         <button class="action-btn action-btn-edit btn-edit-expense"
                                             data-id="{{ $expense->id }}"
@@ -255,21 +439,26 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8;">
-                                    No expenses recorded for this period.
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="fi fi-rr-receipt"></i>
+                                        <h3>No Expenses Recorded</h3>
+                                        <p>There are no expenses for the selected period.</p>
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
-            @if ($expenses->hasPages())
-                <div style="margin-top:20px;">
-                    {{ $expenses->links() }}
-                </div>
-            @endif
         </div>
+
+        @if ($expenses->hasPages())
+            <div style="margin-top:20px;">
+                {{ $expenses->links() }}
+            </div>
+        @endif
+    </div>
     </div>
 
     <script>
