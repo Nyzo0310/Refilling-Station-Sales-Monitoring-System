@@ -128,12 +128,12 @@ class WalkinSalesController extends Controller
 
         $sale = TblSalesWalkin::create($data);
 
-        // 🔵 Auto-record delivery boy expense (₱5 per walk-in transaction)
+        // 🔵 Auto-record delivery boy expense (₱5 per gallon)
         TblExpense::create([
             'date'         => $sale->sold_at->toDateString(),
             'expense_type' => 'Delivery Boy',
-            'amount'       => 5.00,
-            'remarks'      => 'Walk-in sale #' . $sale->id,
+            'amount'       => $sale->quantity * 5,
+            'remarks'      => 'Walk-in sale #' . $sale->id . ' (' . $sale->quantity . ' gal)',
         ]);
 
         // 🔵 Update backwash gallons (usage-based: tracks every gallon dispensed)

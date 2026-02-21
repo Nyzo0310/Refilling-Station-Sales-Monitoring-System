@@ -143,12 +143,12 @@ class ShipDeliveryController extends Controller
 
         $delivery = TblShipDelivery::create($data);
 
-        // 🔵 Auto-record delivery boy expense (₱10 per port delivery transaction)
+        // 🔵 Auto-record delivery boy expense (₱10 per gallon)
         TblExpense::create([
             'date'         => $delivery->delivered_at->toDateString(),
             'expense_type' => 'Delivery Boy',
-            'amount'       => 10.00,
-            'remarks'      => 'Port delivery #' . $delivery->id . ' (' . $delivery->ship_name . ')',
+            'amount'       => $delivery->quantity * 10,
+            'remarks'      => 'Port delivery #' . $delivery->id . ' (' . $delivery->ship_name . ', ' . $delivery->quantity . ' gal)',
         ]);
 
         // 🔵 1 qty = 1 gallon (Usage-based: tracks every gallon dispensed)
