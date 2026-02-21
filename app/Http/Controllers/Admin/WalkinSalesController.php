@@ -131,7 +131,7 @@ class WalkinSalesController extends Controller
         // 🔵 Auto-record delivery boy expense (₱5 per gallon)
         TblExpense::create([
             'date'         => $sale->sold_at->toDateString(),
-            'expense_type' => 'Delivery Boy',
+            'expense_type' => 'Delivery Expenses',
             'amount'       => $sale->quantity * 5,
             'remarks'      => 'Walk-in sale #' . $sale->id . ' (' . $sale->quantity . ' gal)',
         ]);
@@ -205,7 +205,7 @@ class WalkinSalesController extends Controller
         BackwashUpdater::subtractGallons((float) $sale->quantity);
 
         // 🔵 Delete associated delivery boy expense
-        TblExpense::where('expense_type', 'Delivery Boy')
+        TblExpense::where('expense_type', 'Delivery Expenses')
             ->where('remarks', 'LIKE', 'Walk-in sale #' . $sale->id . '%')
             ->delete();
 

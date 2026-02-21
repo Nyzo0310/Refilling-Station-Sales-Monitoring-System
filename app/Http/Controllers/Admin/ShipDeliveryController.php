@@ -146,7 +146,7 @@ class ShipDeliveryController extends Controller
         // 🔵 Auto-record delivery boy expense (₱10 per gallon)
         TblExpense::create([
             'date'         => $delivery->delivered_at->toDateString(),
-            'expense_type' => 'Delivery Boy',
+            'expense_type' => 'Delivery Expenses',
             'amount'       => $delivery->quantity * 10,
             'remarks'      => 'Port delivery #' . $delivery->id . ' (' . $delivery->ship_name . ', ' . $delivery->quantity . ' gal)',
         ]);
@@ -229,7 +229,7 @@ class ShipDeliveryController extends Controller
         BackwashUpdater::subtractGallons((float) $delivery->quantity);
 
         // 🔵 Delete associated delivery boy expense
-        TblExpense::where('expense_type', 'Delivery Boy')
+        TblExpense::where('expense_type', 'Delivery Expenses')
             ->where('remarks', 'LIKE', 'Port delivery #' . $delivery->id . '%')
             ->delete();
 
