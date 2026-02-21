@@ -19,6 +19,12 @@
             border-color: #334155 !important;
         }
 
+        .badge-chip-green {
+            background: #dcfce7 !important;
+            color: #16a34a !important;
+            border-color: #bbf7d0 !important;
+        }
+
         .card-icon-bg {
             position: absolute;
             right: -10px;
@@ -91,7 +97,7 @@
                         <span class="badge-chip" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">
                             Expenses: ₱ {{ number_format($overallExpenses ?? 0, 2) }}
                         </span>
-                        <span class="badge-chip {{ ($overallProfit ?? 0) >= 0 ? 'badge-chip-dark' : '' }}" 
+                        <span class="badge-chip {{ ($overallProfit ?? 0) >= 0 ? 'badge-chip-green' : '' }}" 
                               style="{{ ($overallProfit ?? 0) < 0 ? 'background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;' : '' }}">
                             Profit: ₱ {{ number_format($overallProfit ?? 0, 2) }}
                         </span>
