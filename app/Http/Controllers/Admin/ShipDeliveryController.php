@@ -71,7 +71,8 @@ class ShipDeliveryController extends Controller
             })
             ->when($q !== '', function ($q2) use ($q) {
                 $q2->where(function ($inner) use ($q) {
-                    $inner->where('ship_name', 'like', "%{$q}%")
+                    $inner->where('id', $q)
+                        ->orWhere('ship_name', 'like', "%{$q}%")
                         ->orWhere('crew_name', 'like', "%{$q}%")
                         ->orWhere('container_type', 'like', "%{$q}%")
                         ->orWhere('remarks', 'like', "%{$q}%");

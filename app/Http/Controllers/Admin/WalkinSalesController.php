@@ -65,7 +65,8 @@ class WalkinSalesController extends Controller
             })
             ->when($q !== '', function ($q2) use ($q) {
                 $q2->where(function ($inner) use ($q) {
-                    $inner->where('container_type', 'like', "%{$q}%")
+                    $inner->where('id', $q)
+                          ->orWhere('container_type', 'like', "%{$q}%")
                           ->orWhere('note', 'like', "%{$q}%");
                 });
             });

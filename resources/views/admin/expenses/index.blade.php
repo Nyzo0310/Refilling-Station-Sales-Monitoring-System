@@ -215,7 +215,21 @@
                                     ₱ {{ number_format($expense->amount, 2) }}
                                 </td>
                                 <td style="color: #64748b; font-size: 13px;">
-                                    {{ $expense->remarks ?: '—' }}
+                                    @if($expense->remarks)
+                                        @if(preg_match('/Walk-in sale #(\d+)/', $expense->remarks, $matches))
+                                            <a href="{{ route('admin.walkin.index', ['q' => $matches[1]]) }}" style="color: #0284c7; text-decoration: none; font-weight: 600;">
+                                                {{ $expense->remarks }}
+                                            </a>
+                                        @elseif(preg_match('/Port delivery #(\d+)/', $expense->remarks, $matches))
+                                            <a href="{{ route('admin.ship-deliveries.index', ['q' => $matches[1]]) }}" style="color: #0284c7; text-decoration: none; font-weight: 600;">
+                                                {{ $expense->remarks }}
+                                            </a>
+                                        @else
+                                            {{ $expense->remarks }}
+                                        @endif
+                                    @else
+                                        —
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="actions-cell" style="justify-content: center;">
