@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TblSalesWalkin;
+use App\Models\TblExpense;
 use App\Support\BackwashUpdater;   // ✅ keep this
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -126,6 +127,14 @@ class WalkinSalesController extends Controller
         // partial: keep whatever the user entered
 
         $sale = TblSalesWalkin::create($data);
+
+        // 🔵 Auto-record delivery boy expense (₱5 per walk-in transaction)
+        TblExpense::create([
+            'date'         => $sale->sold_at->toDateString(),
+            'expense_type' => 'Delivery Boy',
+            'amount'       => 5.00,
+            'remarks'      => 'Walk-in sale #' . $sale->id,
+        ]);
 
         // 🔵 Update backwash gallons (usage-based: tracks every gallon dispensed)
         BackwashUpdater::addGallons((float) $sale->quantity);

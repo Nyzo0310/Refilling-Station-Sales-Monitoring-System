@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TblShipDelivery;
+use App\Models\TblExpense;
 use App\Support\BackwashUpdater;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -141,6 +142,14 @@ class ShipDeliveryController extends Controller
         $data['container_size_liters'] = 3.785; // Default to 1 gallon
 
         $delivery = TblShipDelivery::create($data);
+
+        // 🔵 Auto-record delivery boy expense (₱10 per port delivery transaction)
+        TblExpense::create([
+            'date'         => $delivery->delivered_at->toDateString(),
+            'expense_type' => 'Delivery Boy',
+            'amount'       => 10.00,
+            'remarks'      => 'Port delivery #' . $delivery->id . ' (' . $delivery->ship_name . ')',
+        ]);
 
         // 🔵 1 qty = 1 gallon (Usage-based: tracks every gallon dispensed)
         BackwashUpdater::addGallons((float) $delivery->quantity);
