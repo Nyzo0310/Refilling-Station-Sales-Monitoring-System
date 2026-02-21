@@ -204,6 +204,11 @@ class WalkinSalesController extends Controller
         // 🔵 Reconcile backwash (usage-based)
         BackwashUpdater::subtractGallons((float) $sale->quantity);
 
+        // 🔵 Delete associated delivery boy expense
+        TblExpense::where('expense_type', 'Delivery Boy')
+            ->where('remarks', 'LIKE', 'Walk-in sale #' . $sale->id . '%')
+            ->delete();
+
         $sale->delete();
 
         if ($request->ajax() || $request->wantsJson()) {

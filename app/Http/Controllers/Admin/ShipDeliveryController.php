@@ -228,6 +228,11 @@ class ShipDeliveryController extends Controller
         // 🔵 Reconcile backwash (usage-based)
         BackwashUpdater::subtractGallons((float) $delivery->quantity);
 
+        // 🔵 Delete associated delivery boy expense
+        TblExpense::where('expense_type', 'Delivery Boy')
+            ->where('remarks', 'LIKE', 'Port delivery #' . $delivery->id . '%')
+            ->delete();
+
         $delivery->delete();
 
         if ($request->ajax() || $request->wantsJson()) {
