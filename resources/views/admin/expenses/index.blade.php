@@ -315,6 +315,50 @@
             color: #94a3b8 !important;
             font-weight: 500 !important;
         }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+                padding: 12px;
+            }
+
+            .pill-group {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .pill-btn {
+                flex: 1 1 40%;
+                text-align: center;
+            }
+
+            .btn-primary-gradient {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr !important;
+                gap: 12px;
+            }
+
+            .expense-stat-card {
+                padding: 16px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .swal-expenses .swal2-popup {
+                width: 95% !important;
+                padding: 20px !important;
+            }
+        }
     </style>
 
     <header class="admin-topbar">
