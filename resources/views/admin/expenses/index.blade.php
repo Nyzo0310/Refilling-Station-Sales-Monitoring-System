@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+    {{-- Flaticon CDN --}}
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+
     <style>
         .expenses-header {
             display: flex;
@@ -41,6 +45,51 @@
             font-weight: 600;
             background: #f1f5f9;
             color: #475569;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .action-btn-edit {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .action-btn-edit:hover {
+            background: #2563eb;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .action-btn-delete {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .action-btn-delete:hover {
+            background: #dc2626;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+            align-items: center;
         }
 
         /* SweetAlert Form Styling */
@@ -150,6 +199,7 @@
                             <th>Expense Type</th>
                             <th>Amount</th>
                             <th>Remarks</th>
+                            <th style="width: 100px; text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -167,10 +217,31 @@
                                 <td style="color: #64748b; font-size: 13px;">
                                     {{ $expense->remarks ?: '—' }}
                                 </td>
+                                <td>
+                                    <div class="actions-cell" style="justify-content: center;">
+                                        {{-- Edit Button --}}
+                                        <button class="action-btn action-btn-edit btn-edit-expense"
+                                            data-id="{{ $expense->id }}"
+                                            data-type="{{ $expense->expense_type }}"
+                                            data-amount="{{ $expense->amount }}"
+                                            data-date="{{ $expense->date->format('Y-m-d') }}"
+                                            data-remarks="{{ $expense->remarks }}"
+                                            title="Edit">
+                                            <i class="fi fi-rr-pencil"></i>
+                                        </button>
+                                        {{-- Delete Button --}}
+                                        <button class="action-btn action-btn-delete btn-delete-expense"
+                                            data-id="{{ $expense->id }}"
+                                            data-type="{{ ucfirst($expense->expense_type) }}"
+                                            title="Delete">
+                                            <i class="fi fi-rr-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" style="text-align: center; padding: 30px; color: #94a3b8;">
+                                <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8;">
                                     No expenses recorded for this period.
                                 </td>
                             </tr>
@@ -188,133 +259,207 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const btn = document.getElementById('btnAddExpense');
-            if (!btn) return;
+        const CSRF = '{{ csrf_token() }}';
 
-            btn.addEventListener('click', function() {
-                Swal.fire({
-                    title: 'RECORD NEW EXPENSE',
-                    customClass: {
-                        popup: 'swal-water',
-                        confirmButton: 'swal-confirm',
-                        cancelButton: 'swal-cancel'
-                    },
-                    html: `
-                        <div style="text-align: left;">
-                            <label class="swal-label">What kind of expense?</label>
-                            <select id="expense_type" class="swal2-select swal-select">
-                                <option value="machine maintenance">⚙️ Machine Maintenance</option>
-                                <option value="electricity">⚡ Electricity Bill</option>
-                                <option value="water source">💧 Water Source / Supply</option>
-                                <option value="salary">👥 Staff Salary</option>
-                                <option value="gas">⛽ Fuel / Gas</option>
-                                <option value="misc">📦 Other / Miscellaneous</option>
-                            </select>
+        // ─── ADD EXPENSE ──────────────────────────────────────────────────────────
+        document.getElementById('btnAddExpense').addEventListener('click', function () {
+            openExpenseModal();
+        });
 
-                            <div id="specific_type_wrap" style="display: none;">
-                                <label class="swal-label">Specific Title</label>
-                                <input type="text" id="specific_type" class="swal2-input" placeholder="e.g. Office Supplies, Cleaning">
-                            </div>
+        function openExpenseModal(prefill = {}) {
+            const isEdit    = !!prefill.id;
+            const knownTypes = ['machine maintenance', 'electricity', 'water source', 'salary', 'gas'];
+            const typeVal    = prefill.type ? prefill.type.toLowerCase() : '';
+            const isMisc     = typeVal && !knownTypes.includes(typeVal);
 
-                            <label class="swal-label">How much (₱)?</label>
-                            <input type="number" id="amount" class="swal2-input" placeholder="0.00" step="0.01">
+            Swal.fire({
+                title: isEdit ? 'EDIT EXPENSE' : 'RECORD NEW EXPENSE',
+                customClass: {
+                    popup: 'swal-water swal-expenses',
+                    confirmButton: 'swal-confirm',
+                    cancelButton: 'swal-cancel'
+                },
+                html: `
+                    <div style="text-align: left;">
+                        <label class="swal-label">What kind of expense?</label>
+                        <select id="expense_type" class="swal2-select swal-select">
+                            <option value="machine maintenance" ${typeVal === 'machine maintenance' ? 'selected' : ''}>⚙️ Machine Maintenance</option>
+                            <option value="electricity"        ${typeVal === 'electricity'        ? 'selected' : ''}>⚡ Electricity Bill</option>
+                            <option value="water source"       ${typeVal === 'water source'       ? 'selected' : ''}>💧 Water Source / Supply</option>
+                            <option value="salary"             ${typeVal === 'salary'             ? 'selected' : ''}>👥 Staff Salary</option>
+                            <option value="gas"                ${typeVal === 'gas'                ? 'selected' : ''}>⛽ Fuel / Gas</option>
+                            <option value="misc"               ${isMisc                           ? 'selected' : ''}>📦 Other / Miscellaneous</option>
+                        </select>
 
-                            <label class="swal-label">When did this occur?</label>
-                            <input type="date" id="expense_date" class="swal2-input" value="{{ date('Y-m-d') }}">
-
-                            <label class="swal-label">Short Description (Optional)</label>
-                            <textarea id="remarks" class="swal2-textarea swal2-input" placeholder="e.g. replaced filter, monthly electric bill..."></textarea>
+                        <div id="specific_type_wrap" style="display: ${isMisc ? 'block' : 'none'};">
+                            <label class="swal-label">Specific Title</label>
+                            <input type="text" id="specific_type" class="swal2-input" placeholder="e.g. Office Supplies, Cleaning" value="${isMisc ? (prefill.type || '') : ''}">
                         </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Save Expense',
-                    didOpen: () => {
-                        const typeSelect = document.getElementById('expense_type');
-                        const specificWrap = document.getElementById('specific_type_wrap');
-                        const specificInput = document.getElementById('specific_type');
 
-                        typeSelect.addEventListener('change', () => {
-                            if (typeSelect.value === 'misc') {
-                                specificWrap.style.display = 'block';
-                                specificInput.focus();
-                            } else {
-                                specificWrap.style.display = 'none';
-                            }
-                        });
-                    },
-                    preConfirm: () => {
-                        let type = document.getElementById('expense_type').value;
-                        const specificType = document.getElementById('specific_type').value.trim();
-                        const amount = document.getElementById('amount').value;
-                        const date = document.getElementById('expense_date').value;
-                        const remarks = document.getElementById('remarks').value;
+                        <label class="swal-label">How much (₱)?</label>
+                        <input type="number" id="amount" class="swal2-input" placeholder="0.00" step="0.01" value="${prefill.amount || ''}">
 
-                        if (type === 'misc') {
-                            if (!specificType) {
-                                Swal.showValidationMessage('Please enter a specific title for "Other" expense');
-                                return false;
-                            }
-                            type = specificType;
+                        <label class="swal-label">When did this occur?</label>
+                        <input type="date" id="expense_date" class="swal2-input" value="${prefill.date || '{{ date('Y-m-d') }}'}">
+
+                        <label class="swal-label">Short Description (Optional)</label>
+                        <textarea id="remarks" class="swal2-textarea swal2-input" placeholder="e.g. replaced filter, monthly electric bill...">${prefill.remarks || ''}</textarea>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: isEdit ? 'Update Expense' : 'Save Expense',
+                didOpen: () => {
+                    const typeSelect   = document.getElementById('expense_type');
+                    const specificWrap = document.getElementById('specific_type_wrap');
+                    const specificInput = document.getElementById('specific_type');
+
+                    typeSelect.addEventListener('change', () => {
+                        if (typeSelect.value === 'misc') {
+                            specificWrap.style.display = 'block';
+                            specificInput.focus();
+                        } else {
+                            specificWrap.style.display = 'none';
                         }
+                    });
+                },
+                preConfirm: () => {
+                    let type         = document.getElementById('expense_type').value;
+                    const specificType = document.getElementById('specific_type').value.trim();
+                    const amount     = document.getElementById('amount').value;
+                    const date       = document.getElementById('expense_date').value;
+                    const remarks    = document.getElementById('remarks').value;
 
-                        if (!amount || amount <= 0) {
-                            Swal.showValidationMessage('Please enter a valid amount');
+                    if (type === 'misc') {
+                        if (!specificType) {
+                            Swal.showValidationMessage('Please enter a specific title for "Other" expense');
                             return false;
                         }
-
-                        return { expense_type: type, amount, date, remarks };
+                        type = specificType;
                     }
-                }).then((result) => {
-                    if (result.isConfirmed) {
+
+                    if (!amount || amount <= 0) {
+                        Swal.showValidationMessage('Please enter a valid amount');
+                        return false;
+                    }
+
+                    return { expense_type: type, amount, date, remarks };
+                }
+            }).then(result => {
+                if (!result.isConfirmed) return;
+
+                Swal.fire({
+                    title: isEdit ? 'Updating...' : 'Recording...',
+                    didOpen: () => Swal.showLoading(),
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false
+                });
+
+                const url    = isEdit
+                    ? `/admin/expenses/${prefill.id}`
+                    : '{{ route("admin.expenses.store") }}';
+                const method = isEdit ? 'PATCH' : 'POST';
+
+                fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': CSRF,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(result.value)
+                })
+                .then(async res => {
+                    if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(err.message || 'Validation failed');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
                         Swal.fire({
-                            title: 'Recording...',
-                            didOpen: () => {
-                                Swal.showLoading();
-                            },
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
+                            icon: 'success',
+                            title: isEdit ? 'Updated!' : 'Saved!',
+                            text: data.message,
+                            timer: 1500,
                             showConfirmButton: false
-                        });
-
-                        fetch('{{ route("admin.expenses.store") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(result.value)
-                        })
-                        .then(async res => {
-                            if (!res.ok) {
-                                const errData = await res.json();
-                                throw new Error(errData.message || 'Validation failed');
-                            }
-                            return res.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Saved!',
-                                    text: data.message,
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    window.location.reload();
-                                });
-                            }
-                        })
-                        .catch(err => {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: err.message || 'Something went wrong.'
-                            });
-                        });
+                        }).then(() => window.location.reload());
                     }
+                })
+                .catch(err => {
+                    Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Something went wrong.' });
+                });
+            });
+        }
+
+        // ─── EDIT EXPENSE ─────────────────────────────────────────────────────────
+        document.querySelectorAll('.btn-edit-expense').forEach(btn => {
+            btn.addEventListener('click', function () {
+                openExpenseModal({
+                    id:      this.dataset.id,
+                    type:    this.dataset.type,
+                    amount:  this.dataset.amount,
+                    date:    this.dataset.date,
+                    remarks: this.dataset.remarks
+                });
+            });
+        });
+
+        // ─── DELETE EXPENSE ───────────────────────────────────────────────────────
+        document.querySelectorAll('.btn-delete-expense').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id   = this.dataset.id;
+                const type = this.dataset.type;
+
+                Swal.fire({
+                    title: 'Delete Expense?',
+                    html: `Are you sure you want to delete the <strong>${type}</strong> expense? This cannot be undone.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete',
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonText: 'Cancel'
+                }).then(result => {
+                    if (!result.isConfirmed) return;
+
+                    Swal.fire({
+                        title: 'Deleting...',
+                        didOpen: () => Swal.showLoading(),
+                        allowOutsideClick: false,
+                        showConfirmButton: false
+                    });
+
+                    fetch(`/admin/expenses/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': CSRF,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(async res => {
+                        if (!res.ok) {
+                            const err = await res.json();
+                            throw new Error(err.message || 'Delete failed');
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: data.message,
+                                timer: 1200,
+                                showConfirmButton: false
+                            }).then(() => window.location.reload());
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Something went wrong.' });
+                    });
                 });
             });
         });

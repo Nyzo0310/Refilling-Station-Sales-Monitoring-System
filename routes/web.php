@@ -54,6 +54,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ->name('expenses.index');
     Route::post('/expenses', [ExpenseController::class, 'store'])
         ->name('expenses.store');
+    Route::patch('/expenses/{expense}', [ExpenseController::class, 'update'])
+        ->name('expenses.update');
+    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])
+        ->name('expenses.destroy');
 
     // 📊 Reports
     Route::get('/reports', [ReportController::class, 'index'])

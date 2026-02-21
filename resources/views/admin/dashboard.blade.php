@@ -88,7 +88,7 @@
                         <span class="badge-chip">
                             Sales: ₱ {{ number_format($overallRevenue ?? 0, 2) }}
                         </span>
-                        <span class="badge-chip">
+                        <span class="badge-chip" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;">
                             Expenses: ₱ {{ number_format($overallExpenses ?? 0, 2) }}
                         </span>
                         <span class="badge-chip {{ ($overallProfit ?? 0) >= 0 ? 'badge-chip-dark' : '' }}" 

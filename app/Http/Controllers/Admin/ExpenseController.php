@@ -59,4 +59,33 @@ class ExpenseController extends Controller
 
         return redirect()->back()->with('success', 'Expense recorded successfully.');
     }
+
+    public function update(Request $request, TblExpense $expense)
+    {
+        $data = $request->validate([
+            'expense_type' => ['required', 'string', 'max:50'],
+            'amount'       => ['required', 'numeric', 'min:0.01'],
+            'remarks'      => ['nullable', 'string', 'max:500'],
+            'date'         => ['nullable', 'date'],
+        ]);
+
+        $expense->update($data);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Expense updated successfully.']);
+        }
+
+        return redirect()->back()->with('success', 'Expense updated successfully.');
+    }
+
+    public function destroy(TblExpense $expense)
+    {
+        $expense->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Expense deleted successfully.']);
+        }
+
+        return redirect()->back()->with('success', 'Expense deleted successfully.');
+    }
 }
